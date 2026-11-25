@@ -11,7 +11,7 @@ Submissions close: **December 18, 2026, 01:00 UTC**. Judging Dec 18–21, winner
 
 | Requirement | Status | Evidence / link |
 |---|---|---|
-| Live working deployment on the Onyx testnet, with link | ✅ Deployed on `onyx-1` (block `1,400,742`, TX `hXNZA1U7AhfUOLoxv6/qv3iaPmLR63gQawWkUFD4s5o=`) | Pkgpath: `gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm` · Gnoweb: `https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm` (check GPAO activation via `gnokey query vm/qpkgmeta_json -data gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm -remote https://rpc.onyx.testnets.gno.land:443`) |
+| Live working deployment on the Onyx testnet, with link | ✅ Live on `onyx-1` (GPAO `status: "live"`, block `1,400,742`, TX `hXNZA1U7AhfUOLoxv6/qv3iaPmLR63gQawWkUFD4s5o=`) | https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm (`gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm`) |
 | Public repo | ✅ Done | https://github.com/Emmanuel-webDev/HeirRealm |
 | Genuine Gno component (realm/package) | ✅ Done | `r/heirrealm/` — realm `gno.land/r/dev/heirrealm`, Gno 0.9 |
 | README | ✅ Done | `README.md` — what it is, how it works, keeper fee, local test + Onyx deploy steps |

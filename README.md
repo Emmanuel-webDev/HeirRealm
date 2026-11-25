@@ -129,10 +129,11 @@ Two things the demo taught us, recorded in DEMO.md:
 - **Realm path:** `gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm`
 - **Deployer:** `g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e`
 - **Block height:** `1,400,742` (`TX HASH: hXNZA1U7AhfUOLoxv6/qv3iaPmLR63gQawWkUFD4s5o=`)
-- **Onyx gnoweb URL:** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+- **Onyx gnoweb URL (LIVE):** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+- **GPAO Status:** `live` (verified via `vm/qpkgmeta_json` and `gnoweb` HTTP `200`)
 - **RPC / Chain ID:** `https://rpc.onyx.testnets.gno.land:443` / `onyx-1`
 
-> **Note on Onyx `inert` code-submission policy (GPAO):** On `onyx-1`, newly uploaded packages land on-chain in `inert` state (`waiting for a package approver to enable it`) until cleared by the network's Package Approvals Oracle (GPAO) / approvers. Check activation status anytime with:
+> **Verify on-chain metadata anytime:**
 > ```sh
 > gnokey query vm/qpkgmeta_json \
 >   -data gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm \
