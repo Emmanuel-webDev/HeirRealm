@@ -64,7 +64,7 @@
     padding: 0 24px;
   }
 
-  /* Sticky Minimalist Newcomer Navigation (64px) */
+  /* Sticky Minimalist Newcomer Navigation (68px) */
   .nav-wrap {
     position: sticky;
     top: 0;
@@ -272,9 +272,7 @@
     max-width: 780px;
     margin: 0 auto;
   }
-  .hero-eyebrow {
-    margin-bottom: 20px;
-  }
+  .hero-eyebrow { margin-bottom: 20px; }
   .hero h1 {
     font-family: var(--serif);
     font-weight: 400;
@@ -363,7 +361,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
   .bento-title {
     font-family: var(--serif);
@@ -554,18 +552,28 @@
   }
   .form-error.show { display: block; }
 
-  /* Right Bento: Vault Filter Pills & White Inner Cards */
+  /* Right Bento: 3-Tab Switcher + #ID Lookup Bar */
+  .board-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
   .filter-bar {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-    margin-bottom: 16px;
   }
   .ftab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-family: var(--sans);
     font-size: 13px;
     font-weight: 500;
-    padding: 7px 14px;
+    padding: 8px 14px;
     border-radius: var(--radius-pill);
     border: 1px solid var(--border);
     background: var(--card);
@@ -579,6 +587,42 @@
     border-color: var(--ink);
     color: #ffffff;
   }
+  .ftab-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .ftab.active .ftab-badge {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+  }
+  .ftab-badge.bounty-hot {
+    background: var(--butter);
+    color: var(--butter-ink);
+    font-weight: 600;
+  }
+
+  .lookup-form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .lookup-input {
+    width: 148px;
+    height: 36px;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    outline: none;
+  }
+  .lookup-input:focus { border-color: var(--ink); }
 
   .vault-stack {
     display: flex;
@@ -716,10 +760,34 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
-    padding: 40px 20px;
+    padding: 38px 24px;
     text-align: center;
     color: var(--muted);
     font-size: 14.5px;
+  }
+  .empty-card h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 25px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .empty-card p {
+    max-width: 420px;
+    margin: 0 auto 16px;
+    line-height: 1.55;
+  }
+  .empty-footnote {
+    font-size: 12px;
+    color: var(--subtle);
+    margin-top: 14px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .pager-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 14px;
   }
 
   /* Editorial 5 Use-Cases Section (Newcomer Bento Row) */
@@ -832,7 +900,7 @@
 
     <div class="nav-links">
       <a href="#workspace">Create Vault</a>
-      <a href="#vaultsBoard">Live Vaults</a>
+      <a href="#vaultsBoard">Vaults &amp; Bounties</a>
       <a href="#useCases">Use Cases</a>
       <a id="gnowebNavLink" href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">GnoWeb &#8599;</a>
     </div>
@@ -869,7 +937,7 @@
   <!-- Contextual Notices -->
   <div class="notice notice-danger" id="adenaMissingBanner">
     <div>
-      <strong>Adena Wallet not found.</strong> Install the Adena browser extension to sign transactions (make sure you open this page via <code>https://</code> or <code>http://localhost</code> so Adena injects <code>window.adena</code>).
+      <strong>Adena Wallet not found.</strong> Install the Adena browser extension to sign transactions (open via <code>https://</code> or <code>http://localhost</code> so Adena injects <code>window.adena</code>).
     </div>
     <a class="btn btn-dark btn-sm" href="https://adena.app/" target="_blank" rel="noopener">Install Adena &#8599;</a>
   </div>
@@ -997,27 +1065,44 @@
       </form>
     </div>
 
-    <!-- Right Bento: Live Vaults & Keeper Board -->
+    <!-- Right Bento: My Vaults (Default) + Keeper Bounties + All Vaults + #ID Lookup -->
     <div class="bento" id="vaultsBoard">
       <div class="bento-head">
         <div>
-          <h2 class="bento-title">Live vaults &amp; keeper board</h2>
+          <h2 class="bento-title">Vaults &amp; keeper bounties</h2>
           <div class="bento-sub" id="realmPathLabel" style="font-family:var(--mono);font-size:11.5px;margin-top:3px">
             gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
           </div>
         </div>
-        <button class="btn btn-sm" id="refreshBtn" type="button">&#8635; Refresh</button>
+        <button class="btn btn-sm" id="refreshBtn" type="button">&#8635; Sync</button>
       </div>
 
-      <div class="filter-bar" id="filterTabs">
-        <button type="button" class="ftab active" data-filter="all">All (<span id="countAll">0</span>)</button>
-        <button type="button" class="ftab" data-filter="claimable">Claimable (<span id="countClaimable">0</span>)</button>
-        <button type="button" class="ftab" data-filter="mine">My Vaults (<span id="countMine">0</span>)</button>
-        <button type="button" class="ftab" data-filter="released">Released (<span id="countReleased">0</span>)</button>
+      <div class="board-controls">
+        <div class="filter-bar" id="filterTabs" role="tablist">
+          <button type="button" class="ftab active" data-filter="mine" role="tab">
+            My Vaults <span class="ftab-badge" id="countMine">&mdash;</span>
+          </button>
+          <button type="button" class="ftab" data-filter="bounties" role="tab">
+            Keeper Bounties <span class="ftab-badge bounty-hot" id="countBounties">0</span>
+          </button>
+          <button type="button" class="ftab" data-filter="all" role="tab">
+            All Vaults <span class="ftab-badge" id="countAll">0</span>
+          </button>
+        </div>
+
+        <form class="lookup-form" id="lookupForm" novalidate>
+          <input id="lookupInput" class="lookup-input" type="number" min="1" step="1" placeholder="Vault #ID (e.g. 1)" aria-label="Jump to Vault ID" />
+          <button class="btn btn-sm" type="submit">Lookup</button>
+          <button class="btn btn-sm" id="clearLookupBtn" type="button" style="display:none">Clear</button>
+        </form>
       </div>
 
       <div id="vaultList" class="vault-stack">
-        <div class="empty-card">Querying live vaults from Onyx RPC...</div>
+        <div class="empty-card">Syncing on-chain index...</div>
+      </div>
+
+      <div class="pager-row" id="pagerRow" style="display:none">
+        <button class="btn btn-sm" id="loadMoreBtn" type="button">Load 10 more</button>
       </div>
     </div>
   </section>
@@ -1093,6 +1178,8 @@
 
 <script>
 (() => {
+  const PAGE_SIZE = 10;
+
   const NETWORKS = {
     onyx: {
       label: "Onyx Testnet",
@@ -1131,8 +1218,17 @@
 
   let currentNetKey = "onyx";
   let wallet = { connected: false, address: "", chainId: "", balanceUgnot: 0n };
-  let vaults = [];
-  let currentFilter = "all";
+
+  // Lightweight index entries: { id, statusSummary, balance, deadlineStr, deadlineMs }
+  let vaultIndex = [];
+  let totalVaultCount = 0;
+  // Lazy detail cache: Map<number, FullVault>
+  let detailCache = new Map();
+
+  // Default tab is "mine" ("My Vaults"); other tabs: "bounties", "all"
+  let currentFilter = "mine";
+  let pageLimit = PAGE_SIZE;
+  let lookupVaultId = null; // non-null when viewing a specific #ID lookup
   let busyVaultAction = false;
 
   const $ = (id) => document.getElementById(id);
@@ -1211,6 +1307,7 @@
   }
 
   function parseDetailMarkdown(id, md) {
+    if (!md || md.includes("Unknown vault.")) return null;
     const get = (label) => {
       const m = md.match(new RegExp(`^- ${label}:\\s*(.+)$`, "m"));
       return m ? m[1].trim() : "";
@@ -1218,6 +1315,8 @@
     const statusRaw = get("Status");
     const owner = get("Owner");
     const beneficiary = get("Beneficiary");
+    if (!owner || !beneficiary) return null;
+
     const balMatch = get("Balance").match(/^(\d+)/);
     const intMatch = get("Check-in interval").match(/^(\d+)/);
     const deadlineStr = get("Deadline");
@@ -1250,33 +1349,236 @@
     };
   }
 
-  async function loadVaults() {
-    const listEl = $("vaultList");
-    try {
-      const homeMd = await abciQuery("vm/qrender", `${net().pkgPath}:`);
-      const idMatches = [...homeMd.matchAll(/^- Vault #(\d+)\b/gm)];
-      if (idMatches.length === 0) {
-        vaults = [];
-        renderVaults();
-        return;
-      }
-      const ids = idMatches.map((m) => Number(m[1]));
-      const details = await Promise.all(
-        ids.map(async (id) => {
+  // Lazy-fetch details for a bounded slice of vault IDs (cached unless forceRefresh=true)
+  async function ensureDetails(ids, forceRefresh = false) {
+    const toFetch = ids.filter((id) => forceRefresh || !detailCache.has(id));
+    if (toFetch.length > 0) {
+      await Promise.all(
+        toFetch.map(async (id) => {
           const md = await abciQuery("vm/qrender", `${net().pkgPath}:${id}`);
-          return parseDetailMarkdown(id, md);
+          const parsed = parseDetailMarkdown(id, md);
+          if (parsed) detailCache.set(id, parsed);
         })
       );
-      vaults = details.sort((a, b) => b.id - a.id);
-      renderVaults();
+    }
+    return ids.map((id) => detailCache.get(id)).filter(Boolean);
+  }
+
+  function isSummaryClaimable(entry) {
+    if (!entry) return false;
+    const st = entry.statusSummary || "";
+    if (st === "released" || st === "cancelled") return false;
+    if (st.startsWith("expired")) return true;
+    if (entry.deadlineMs > 0 && Date.now() > entry.deadlineMs) return true;
+    return false;
+  }
+
+  function isVaultExpiredNow(v) {
+    if (!v || v.released || v.cancelled) return false;
+    return v.statusRaw.startsWith("expired") || (v.deadlineMs > 0 && Date.now() > v.deadlineMs);
+  }
+
+  // Step 1: Build lightweight index via 1-call Render(""), with automatic VaultCount() fallback
+  async function syncIndexAndRender(forceRefreshDetails = false) {
+    const listEl = $("vaultList");
+    if (forceRefreshDetails) detailCache.clear();
+
+    try {
+      let parsedIndex = null;
+      try {
+        const homeMd = await abciQuery("vm/qrender", `${net().pkgPath}:`);
+        if (homeMd.includes("No vaults yet.")) {
+          parsedIndex = [];
+        } else {
+          // Format in render.gno: - Vault #%d — %s — balance %d ugnot — deadline %s
+          const re = /^- Vault #(\d+)\s+—\s+(.+?)\s+—\s+balance\s+(\d+)\s+ugnot\s+—\s+deadline\s+(\S+)\s*$/gm;
+          const items = [];
+          let m;
+          while ((m = re.exec(homeMd)) !== null) {
+            items.push({
+              id: Number(m[1]),
+              statusSummary: m[2].trim(),
+              balance: BigInt(m[3]),
+              deadlineStr: m[4].trim(),
+              deadlineMs: Date.parse(m[4].trim()) || 0
+            });
+          }
+          if (items.length > 0) {
+            parsedIndex = items.sort((a, b) => b.id - a.id);
+          }
+        }
+      } catch {
+        parsedIndex = null;
+      }
+
+      // Fallback: vm/qeval VaultCount() -> paginate newest IDs in slices of PAGE_SIZE
+      if (parsedIndex === null) {
+        const countRaw = await abciQuery("vm/qeval", `${net().pkgPath}.VaultCount()`);
+        const cm = countRaw.match(/\((\d+)\s+int\)/);
+        const n = cm ? Number(cm[1]) : 0;
+        const fallbackItems = [];
+        for (let i = n; i >= 1; i--) {
+          const cached = detailCache.get(i);
+          fallbackItems.push({
+            id: i,
+            statusSummary: cached ? cached.statusRaw : "unknown",
+            balance: cached ? cached.balance : 0n,
+            deadlineStr: cached ? cached.deadlineStr : "",
+            deadlineMs: cached ? cached.deadlineMs : 0
+          });
+        }
+        vaultIndex = fallbackItems;
+        totalVaultCount = n;
+      } else {
+        vaultIndex = parsedIndex;
+        totalVaultCount = parsedIndex.length;
+      }
+
+      await renderActiveView(forceRefreshDetails);
     } catch (err) {
+      $("pagerRow").style.display = "none";
       listEl.innerHTML = `<div class="empty-card">Could not reach ${escapeHtml(net().label)} RPC (<code>${escapeHtml(net().rpc)}</code>):<br>${escapeHtml(err.message)}</div>`;
     }
   }
 
-  function isVaultExpiredNow(v) {
-    if (v.released || v.cancelled) return false;
-    return v.statusRaw.startsWith("expired") || (v.deadlineMs > 0 && Date.now() > v.deadlineMs);
+  function updateTabCounts() {
+    $("countAll").textContent = String(totalVaultCount);
+    const bountyIds = vaultIndex.filter((e) => isSummaryClaimable(e));
+    $("countBounties").textContent = String(bountyIds.length);
+
+    if (!wallet.connected) {
+      $("countMine").textContent = "—";
+    } else {
+      let mineKnown = 0;
+      detailCache.forEach((v) => {
+        if (v.owner === wallet.address || v.beneficiary === wallet.address) mineKnown++;
+      });
+      $("countMine").textContent = String(mineKnown);
+    }
+  }
+
+  async function renderActiveView(forceRefresh = false) {
+    const listEl = $("vaultList");
+    const pagerRow = $("pagerRow");
+    const loadMoreBtn = $("loadMoreBtn");
+    pagerRow.style.display = "none";
+
+    updateTabCounts();
+
+    // Direct #ID Lookup overrides tab list
+    if (lookupVaultId !== null) {
+      $("clearLookupBtn").style.display = "inline-flex";
+      const details = await ensureDetails([lookupVaultId], forceRefresh);
+      updateTabCounts();
+      if (details.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-card">
+            <h3>Vault #${escapeHtml(lookupVaultId)} not found</h3>
+            <p>There ${totalVaultCount === 1 ? "is 1 vault" : `are ${totalVaultCount} vaults`} deployed on ${escapeHtml(net().label)} right now.</p>
+            <button class="btn btn-sm" type="button" id="resetLookupInlineBtn">Back to board</button>
+          </div>
+        `;
+        $("resetLookupInlineBtn")?.addEventListener("click", clearLookup);
+        return;
+      }
+      listEl.innerHTML = details.map(renderVaultCardHtml).join("");
+      return;
+    }
+
+    $("clearLookupBtn").style.display = "none";
+
+    // Tab 1 (Default): My Vaults
+    if (currentFilter === "mine") {
+      if (!wallet.connected) {
+        listEl.innerHTML = `
+          <div class="empty-card">
+            <h3>Your personal vault workspace</h3>
+            <p>Connect your Adena wallet to view and manage vaults where you are the Owner or Recipient — or look up any Vault #ID above.</p>
+            <button class="btn btn-dark" type="button" id="emptyConnectBtn">Connect Adena</button>
+            <p class="empty-footnote">Filters on-chain state by your connected address. Expired vaults are listed under Keeper Bounties so keepers can execute releases.</p>
+          </div>
+        `;
+        $("emptyConnectBtn")?.addEventListener("click", connectAdena);
+        return;
+      }
+
+      // Scan newest vaults in bounded pages of PAGE_SIZE
+      const scanIds = vaultIndex.slice(0, pageLimit).map((e) => e.id);
+      const scannedDetails = await ensureDetails(scanIds, forceRefresh);
+      updateTabCounts();
+      const myVaults = scannedDetails.filter(
+        (v) => v.owner === wallet.address || v.beneficiary === wallet.address
+      );
+
+      if (vaultIndex.length > pageLimit) {
+        pagerRow.style.display = "flex";
+        loadMoreBtn.textContent = `Scan ${Math.min(PAGE_SIZE, vaultIndex.length - pageLimit)} older vaults`;
+      }
+
+      if (myVaults.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-card">
+            <h3>No vaults for this wallet yet</h3>
+            <p>Connected as <code>${escapeHtml(shortAddr(wallet.address))}</code>. Create a vault on the left, or check <strong>Keeper Bounties</strong> to earn 2% releasing expired vaults.</p>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = myVaults.map(renderVaultCardHtml).join("");
+      return;
+    }
+
+    // Tab 2: Keeper Bounties (Expired / Claimable ONLY)
+    if (currentFilter === "bounties") {
+      // If index came from Render(""), filter expired IDs in 0 extra RPC calls; otherwise inspect current page
+      const hasSummaryStatus = vaultIndex.every((e) => e.statusSummary !== "unknown");
+      let candidateIds;
+      if (hasSummaryStatus) {
+        candidateIds = vaultIndex.filter((e) => isSummaryClaimable(e)).map((e) => e.id);
+      } else {
+        candidateIds = vaultIndex.map((e) => e.id);
+      }
+
+      const pageIds = candidateIds.slice(0, pageLimit);
+      const details = (await ensureDetails(pageIds, forceRefresh)).filter((v) => isVaultExpiredNow(v));
+      updateTabCounts();
+
+      if (candidateIds.length > pageLimit) {
+        pagerRow.style.display = "flex";
+        loadMoreBtn.textContent = `Load ${Math.min(PAGE_SIZE, candidateIds.length - pageLimit)} more bounties`;
+      }
+
+      if (details.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-card">
+            <h3>No expired vaults awaiting a keeper</h3>
+            <p>All active vaults are still within their check-in windows. As soon as any vault passes its deadline, it appears here with a 2% keeper bounty.</p>
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = details.map(renderVaultCardHtml).join("");
+      return;
+    }
+
+    // Tab 3: All Vaults (Paginated 10 at a time)
+    const allIds = vaultIndex.map((e) => e.id);
+    if (allIds.length === 0) {
+      listEl.innerHTML = `<div class="empty-card">No vaults created on this network yet. Create Vault #1 on the left.</div>`;
+      return;
+    }
+    const pageIds = allIds.slice(0, pageLimit);
+    const details = await ensureDetails(pageIds, forceRefresh);
+    updateTabCounts();
+
+    if (allIds.length > pageLimit) {
+      pagerRow.style.display = "flex";
+      loadMoreBtn.textContent = `Load ${Math.min(PAGE_SIZE, allIds.length - pageLimit)} more vaults`;
+    }
+
+    listEl.innerHTML = details.map(renderVaultCardHtml).join("");
   }
 
   function formatDuration(ms) {
@@ -1293,150 +1595,123 @@
     return parts.join(" ");
   }
 
-  function renderVaults() {
+  function renderVaultCardHtml(v) {
     const now = Date.now();
     const myAddr = wallet.address;
+    const expired = isVaultExpiredNow(v);
 
-    const countClaimable = vaults.filter((v) => isVaultExpiredNow(v)).length;
-    const countMine = vaults.filter((v) => myAddr && (v.owner === myAddr || v.beneficiary === myAddr)).length;
-    const countReleased = vaults.filter((v) => v.released).length;
+    let pillCls = "pill-sage", stLabel = "Active";
+    if (v.released) { pillCls = ""; stLabel = "Released"; }
+    else if (v.cancelled) { pillCls = ""; stLabel = "Cancelled"; }
+    else if (expired) { pillCls = "pill-butter"; stLabel = "Claimable · 2% Bounty"; }
 
-    $("countAll").textContent = String(vaults.length);
-    $("countClaimable").textContent = String(countClaimable);
-    $("countMine").textContent = String(countMine);
-    $("countReleased").textContent = String(countReleased);
+    const isOwner = myAddr && v.owner === myAddr;
+    const isBen = myAddr && v.beneficiary === myAddr;
 
-    const filtered = vaults.filter((v) => {
-      if (currentFilter === "claimable") return isVaultExpiredNow(v);
-      if (currentFilter === "mine") return myAddr && (v.owner === myAddr || v.beneficiary === myAddr);
-      if (currentFilter === "released") return v.released;
-      return true;
-    });
-
-    const listEl = $("vaultList");
-    if (filtered.length === 0) {
-      listEl.innerHTML = `<div class="empty-card">${
-        vaults.length === 0
-          ? "No vaults created on this network yet. Create Vault #1 on the left."
-          : "No vaults match the selected filter."
-      }</div>`;
-      return;
+    let stripCls = "";
+    let countdownHtml = "";
+    if (v.released) {
+      countdownHtml = `<span>Released by keeper <code>${escapeHtml(shortAddr(v.keeper))}</code></span><span style="color:var(--subtle)">${escapeHtml(v.releasedAt)}</span>`;
+    } else if (v.cancelled) {
+      countdownHtml = `<span>Cancelled &amp; refunded in full to owner</span><span style="color:var(--subtle)">Closed</span>`;
+    } else {
+      const diff = v.deadlineMs - now;
+      stripCls = diff <= 0 ? "strip-claimable" : "strip-active";
+      countdownHtml = diff <= 0
+        ? `<span data-deadline="${v.deadlineMs}" data-expired="1">Expired ${formatDuration(diff)} ago &middot; Ready for keeper</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`
+        : `<span data-deadline="${v.deadlineMs}" data-expired="0">${formatDuration(diff)} remaining</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`;
     }
 
-    listEl.innerHTML = filtered.map((v) => {
-      const expired = isVaultExpiredNow(v);
-      let pillCls = "pill-sage", stLabel = "Active";
-      if (v.released) { pillCls = ""; stLabel = "Released"; }
-      else if (v.cancelled) { pillCls = ""; stLabel = "Cancelled"; }
-      else if (expired) { pillCls = "pill-butter"; stLabel = "Claimable · 2% Bounty"; }
-
-      const isOwner = myAddr && v.owner === myAddr;
-      const isBen = myAddr && v.beneficiary === myAddr;
-
-      let stripCls = "";
-      let countdownHtml = "";
-      if (v.released) {
-        countdownHtml = `<span>Released by keeper <code>${escapeHtml(shortAddr(v.keeper))}</code></span><span style="color:var(--subtle)">${escapeHtml(v.releasedAt)}</span>`;
-      } else if (v.cancelled) {
-        countdownHtml = `<span>Cancelled &amp; refunded in full to owner</span><span style="color:var(--subtle)">Closed</span>`;
+    let actionsHtml = "";
+    if (!v.released && !v.cancelled) {
+      if (expired) {
+        const blockedKeeper = isOwner || isBen;
+        actionsHtml = `
+          <button type="button" class="btn btn-butter btn-sm" data-act="release" data-id="${v.id}" ${blockedKeeper || busyVaultAction ? "disabled" : ""}>
+            Trigger Release &middot; Earn ${formatUgnot(v.keeperFee)} (2%)
+          </button>
+          ${blockedKeeper
+            ? `<div class="vnote">Realm guard: you are connected as the ${isOwner ? "Owner" : "Recipient"} of Vault #${v.id}. Switch to a third Adena wallet to claim the 2% keeper fee.</div>`
+            : `<div class="vnote">Any third-party wallet (not Owner or Recipient) can trigger this release and receive 2% atomically.</div>`
+          }
+        `;
+      } else if (isOwner) {
+        actionsHtml = `
+          <button type="button" class="btn btn-sage btn-sm" data-act="checkin" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+            Check In (Reset Timer)
+          </button>
+          <button type="button" class="btn btn-sm" data-act="toggle-topup" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+            + Top Up
+          </button>
+          <button type="button" class="btn btn-ghost-danger btn-sm" data-act="cancel" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+            Cancel &amp; Refund
+          </button>
+          <div class="topup-drawer" id="topupBox-${v.id}">
+            <input type="text" class="input" id="topupInput-${v.id}" placeholder="GNOT amount (e.g. 0.01)" value="0.01" style="height:38px;flex:1" />
+            <button type="button" class="btn btn-dark btn-sm" data-act="deposit" data-id="${v.id}">Deposit</button>
+          </div>
+        `;
       } else {
-        const diff = v.deadlineMs - now;
-        stripCls = diff <= 0 ? "strip-claimable" : "strip-active";
-        countdownHtml = diff <= 0
-          ? `<span data-deadline="${v.deadlineMs}" data-expired="1">Expired ${formatDuration(diff)} ago &middot; Ready for keeper</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`
-          : `<span data-deadline="${v.deadlineMs}" data-expired="0">${formatDuration(diff)} remaining</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`;
+        actionsHtml = `<div class="vnote">Check-in window: ${v.interval.toLocaleString()}s. Connect as Owner (<code>${escapeHtml(shortAddr(v.owner))}</code>) to check in, top up, or cancel.</div>`;
       }
+    }
 
-      let actionsHtml = "";
-      if (!v.released && !v.cancelled) {
-        if (expired) {
-          const blockedKeeper = isOwner || isBen;
-          actionsHtml = `
-            <button type="button" class="btn btn-butter btn-sm" data-act="release" data-id="${v.id}" ${blockedKeeper || busyVaultAction ? "disabled" : ""}>
-              Trigger Release &middot; Earn ${formatUgnot(v.keeperFee)} (2%)
-            </button>
-            ${blockedKeeper
-              ? `<div class="vnote">Realm guard: you are connected as the ${isOwner ? "Owner" : "Recipient"} of Vault #${v.id}. Switch to a third Adena wallet to claim the 2% keeper fee.</div>`
-              : `<div class="vnote">Any third-party wallet (not Owner or Recipient) can trigger this release and receive 2% atomically.</div>`
-            }
-          `;
-        } else if (isOwner) {
-          actionsHtml = `
-            <button type="button" class="btn btn-sage btn-sm" data-act="checkin" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
-              Check In (Reset Timer)
-            </button>
-            <button type="button" class="btn btn-sm" data-act="toggle-topup" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
-              + Top Up
-            </button>
-            <button type="button" class="btn btn-ghost-danger btn-sm" data-act="cancel" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
-              Cancel &amp; Refund
-            </button>
-            <div class="topup-drawer" id="topupBox-${v.id}">
-              <input type="text" class="input" id="topupInput-${v.id}" placeholder="GNOT amount (e.g. 0.01)" value="0.01" style="height:38px;flex:1" />
-              <button type="button" class="btn btn-dark btn-sm" data-act="deposit" data-id="${v.id}">Deposit</button>
-            </div>
-          `;
-        } else {
-          actionsHtml = `<div class="vnote">Check-in window: ${v.interval.toLocaleString()}s. Connect as Owner (<code>${escapeHtml(shortAddr(v.owner))}</code>) to check in, top up, or cancel.</div>`;
-        }
-      }
+    const detailUrl = `${net().gnoweb}${net().shortPath}:${v.id}`;
 
-      const detailUrl = `${net().gnoweb}${net().shortPath}:${v.id}`;
-
-      return `
-        <article class="vcard ${expired ? "is-claimable" : ""}">
-          <div class="vcard-head">
-            <div class="vcard-title">
-              <span class="vcard-num">Vault #${v.id}</span>
-              <span class="pill ${pillCls}">${stLabel}</span>
-            </div>
-            <a class="ext-link" href="${escapeHtml(detailUrl)}" target="_blank" rel="noopener">View on GnoWeb &#8599;</a>
+    return `
+      <article class="vcard ${expired ? "is-claimable" : ""}">
+        <div class="vcard-head">
+          <div class="vcard-title">
+            <span class="vcard-num">Vault #${v.id}</span>
+            <span class="pill ${pillCls}">${stLabel}</span>
           </div>
+          <a class="ext-link" href="${escapeHtml(detailUrl)}" target="_blank" rel="noopener">View on GnoWeb &#8599;</a>
+        </div>
 
-          <div class="timer-strip ${stripCls}">${countdownHtml}</div>
+        <div class="timer-strip ${stripCls}">${countdownHtml}</div>
 
-          <div class="vmeta-grid">
-            <div class="vmeta-item">
-              <small>Owner</small>
-              <code title="${escapeHtml(v.owner)}">${escapeHtml(shortAddr(v.owner))}</code>${isOwner ? '<span class="you-pill">You</span>' : ""}
-            </div>
-            <div class="vmeta-item">
-              <small>Recipient (98%)</small>
-              <code title="${escapeHtml(v.beneficiary)}">${escapeHtml(shortAddr(v.beneficiary))}</code>${isBen ? '<span class="you-pill">You</span>' : ""}
-            </div>
-            <div class="vmeta-item">
-              <small>Locked Balance</small>
-              <code>${formatGnot(v.balance)} (${formatUgnot(v.balance)})</code>
-            </div>
-            <div class="vmeta-item">
-              <small>98% Recipient / 2% Keeper</small>
-              <code>${formatUgnot(v.beneficiaryShare)} / ${formatUgnot(v.keeperFee)}</code>
-            </div>
+        <div class="vmeta-grid">
+          <div class="vmeta-item">
+            <small>Owner</small>
+            <code title="${escapeHtml(v.owner)}">${escapeHtml(shortAddr(v.owner))}</code>${isOwner ? '<span class="you-pill">You</span>' : ""}
           </div>
+          <div class="vmeta-item">
+            <small>Recipient (98%)</small>
+            <code title="${escapeHtml(v.beneficiary)}">${escapeHtml(shortAddr(v.beneficiary))}</code>${isBen ? '<span class="you-pill">You</span>' : ""}
+          </div>
+          <div class="vmeta-item">
+            <small>Locked Balance</small>
+            <code>${formatGnot(v.balance)} (${formatUgnot(v.balance)})</code>
+          </div>
+          <div class="vmeta-item">
+            <small>98% Recipient / 2% Keeper</small>
+            <code>${formatUgnot(v.beneficiaryShare)} / ${formatUgnot(v.keeperFee)}</code>
+          </div>
+        </div>
 
-          ${actionsHtml ? `<div class="vactions">${actionsHtml}</div>` : ""}
-        </article>
-      `;
-    }).join("");
+        ${actionsHtml ? `<div class="vactions">${actionsHtml}</div>` : ""}
+      </article>
+    `;
   }
 
+  // Live 1s countdown ticker; flips vault into Keeper Bounties automatically when deadline passes
   setInterval(() => {
     const now = Date.now();
-    let needsRerender = false;
+    let crossedZero = false;
     document.querySelectorAll("[data-deadline]").forEach((el) => {
       const dl = Number(el.getAttribute("data-deadline"));
       if (!dl) return;
       const diff = dl - now;
       const wasExpired = el.getAttribute("data-expired") === "1";
       if (diff <= 0 && !wasExpired) {
-        needsRerender = true;
+        crossedZero = true;
       } else if (diff <= 0) {
         el.innerHTML = `Expired ${formatDuration(diff)} ago &middot; Ready for keeper`;
       } else {
         el.textContent = `${formatDuration(diff)} remaining`;
       }
     });
-    if (needsRerender) renderVaults();
+    if (crossedZero) renderActiveView(false);
   }, 1000);
 
   async function refreshBalance(addr) {
@@ -1498,7 +1773,7 @@
       wallet.balanceUgnot = coinMatch ? BigInt(coinMatch[1]) : 0n;
       await refreshBalance(wallet.address);
       updateWalletUI();
-      renderVaults();
+      await renderActiveView(false);
 
       if (window.adena.On) {
         window.adena.On("changedAccount", () => connectAdena());
@@ -1681,7 +1956,8 @@
           "ok",
           `<strong>Vault created on ${escapeHtml(net().label)}!</strong> Locked <code>${formatUgnot(ugnot)}</code>.${txHash ? ` TX: <code>${escapeHtml(txHash)}</code>` : ""}`
         );
-        await Promise.all([loadVaults(), refreshBalance(wallet.address)]);
+        lookupVaultId = null;
+        await Promise.all([syncIndexAndRender(true), refreshBalance(wallet.address)]);
         updateWalletUI();
       }
     } catch (err) {
@@ -1696,7 +1972,7 @@
     const btn = e.target.closest("[data-act]");
     if (!btn) return;
     const act = btn.dataset.act;
-    const id = btn.dataset.id;
+    const id = Number(btn.dataset.id);
 
     if (act === "toggle-topup") {
       const box = $(`topupBox-${id}`);
@@ -1729,7 +2005,8 @@
         if (res) showBanner("ok", `<strong>Deposited ${formatUgnot(amt)}</strong> into Vault #${escapeHtml(id)}.`);
       }
       if (res) {
-        await Promise.all([loadVaults(), refreshBalance(wallet.address)]);
+        detailCache.delete(id);
+        await Promise.all([syncIndexAndRender(true), refreshBalance(wallet.address)]);
         updateWalletUI();
       }
     } catch (err) {
@@ -1741,13 +2018,42 @@
     }
   });
 
+  // Tab switching + #ID Lookup + Pagination
   $("filterTabs").addEventListener("click", (e) => {
     const tab = e.target.closest(".ftab");
     if (!tab) return;
     document.querySelectorAll(".ftab").forEach((t) => t.classList.remove("active"));
     tab.classList.add("active");
     currentFilter = tab.dataset.filter;
-    renderVaults();
+    pageLimit = PAGE_SIZE;
+    lookupVaultId = null;
+    $("lookupInput").value = "";
+    renderActiveView(false);
+  });
+
+  function clearLookup() {
+    lookupVaultId = null;
+    $("lookupInput").value = "";
+    renderActiveView(false);
+  }
+
+  $("lookupForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const raw = $("lookupInput").value.trim();
+    const n = Number(raw);
+    if (!raw || !Number.isInteger(n) || n < 1) {
+      clearLookup();
+      return;
+    }
+    lookupVaultId = n;
+    renderActiveView(false);
+  });
+
+  $("clearLookupBtn").addEventListener("click", clearLookup);
+
+  $("loadMoreBtn").addEventListener("click", () => {
+    pageLimit += PAGE_SIZE;
+    renderActiveView(false);
   });
 
   $("networkSelect").addEventListener("change", async () => {
@@ -1756,21 +2062,24 @@
     $("netBadge").innerHTML = `<span class="dot-live"></span> ${escapeHtml(n.label)}`;
     $("gnowebNavLink").href = `${n.gnoweb}${n.shortPath}`;
     $("realmPathLabel").textContent = n.pkgPath;
+    detailCache.clear();
+    pageLimit = PAGE_SIZE;
+    lookupVaultId = null;
     if (wallet.connected) {
       await refreshBalance(wallet.address);
       updateWalletUI();
     }
-    await loadVaults();
+    await syncIndexAndRender(true);
   });
 
-  $("refreshBtn").addEventListener("click", () => loadVaults());
+  $("refreshBtn").addEventListener("click", () => syncIndexAndRender(true));
   $("connectBtn").addEventListener("click", connectAdena);
 
   updatePreview();
-  loadVaults();
+  syncIndexAndRender(false);
   setInterval(() => {
-    if (!busyVaultAction) loadVaults();
-  }, 12000);
+    if (!busyVaultAction) syncIndexAndRender(false);
+  }, 15000);
 })();
 </script>
 </body>
