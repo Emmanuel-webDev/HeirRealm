@@ -1,0 +1,20 @@
+# Secrets & keys (never commit)
+.env
+.env.*
+*.key
+*.pem
+*.mnemonic
+*.seed
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
+
+# Local Gno / Go artifacts
+.gnodev/
+gno.out
+*.test
