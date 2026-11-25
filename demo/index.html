@@ -3,773 +3,967 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>HeirRealm — Inactivity-Triggered Release on Gno</title>
+<title>HeirRealm — Inactivity-Triggered Release for Gno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
+  /* Framer "Newcomer" Design System Tokens */
   :root {
-    --bg: #0b0f17;
-    --bg-card: #121826;
-    --bg-elev: #1a2234;
-    --bg-input: #0d1320;
-    --border: #253047;
-    --border-focus: #38bdf8;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-    --text-dim: #64748b;
-    --accent: #38bdf8;
-    --accent-hover: #0ea5e9;
-    --green: #10b981;
-    --green-bg: rgba(16, 185, 129, 0.12);
-    --amber: #f59e0b;
-    --amber-bg: rgba(245, 158, 11, 0.14);
-    --red: #ef4444;
-    --red-bg: rgba(239, 68, 68, 0.12);
-    --purple: #a78bfa;
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
-    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --bg: #ffffff;
+    --surface: #f6f6f6;
+    --surface-subtle: #fafafa;
+    --card: #ffffff;
+    --ink: #131314;
+    --ink-deep: #0d120b;
+    --muted: #46474e;
+    --subtle: #76777f;
+    --border: #e8e8e9;
+    --border-strong: #d4d4d8;
+    --sage: #dfe5d7;
+    --sage-ink: #0d120b;
+    --butter: #f8df80;
+    --butter-soft: #fdf5d2;
+    --butter-ink: #131314;
+    --danger: #d71a21;
+    --danger-bg: #fef2f2;
+    --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --radius-bento: 22px;
+    --radius-card: 16px;
+    --radius-input: 12px;
+    --radius-pill: 999px;
   }
 
-  [data-theme="light"] {
-    --bg: #f8fafc;
-    --bg-card: #ffffff;
-    --bg-elev: #f1f5f9;
-    --bg-input: #f8fafc;
-    --border: #e2e8f0;
-    --border-focus: #0284c7;
-    --text: #0f172a;
-    --text-muted: #475569;
-    --text-dim: #64748b;
-    --accent: #0284c7;
-    --accent-hover: #0369a1;
-    --green: #059669;
-    --green-bg: rgba(5, 150, 105, 0.1);
-    --amber: #d97706;
-    --amber-bg: rgba(217, 119, 6, 0.12);
-    --red: #dc2626;
-    --red-bg: rgba(220, 38, 38, 0.1);
-    --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
   body {
     margin: 0;
     background: var(--bg);
-    color: var(--text);
+    color: var(--ink);
     font-family: var(--sans);
-    line-height: 1.5;
-    min-height: 100vh;
+    font-size: 15px;
+    font-weight: 450;
+    line-height: 1.65;
+    font-feature-settings: "cv03" on, "cv04" on, "cv09" on, "cv11" on;
   }
 
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  h1, h2, h3, h4, p { margin: 0; }
+  a { color: inherit; text-decoration: none; }
 
-  .container {
-    max-width: 1180px;
+  .shell {
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.25rem 4rem;
+    padding: 0 24px;
   }
 
-  /* Header */
-  .topbar {
-    border-bottom: 1px solid var(--border);
-    background: rgba(18, 24, 38, 0.78);
-    backdrop-filter: blur(10px);
+  /* Sticky Minimalist Newcomer Navigation (64px) */
+  .nav-wrap {
     position: sticky;
     top: 0;
-    z-index: 30;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(232, 232, 233, 0.75);
   }
-  [data-theme="light"] .topbar {
-    background: rgba(255, 255, 255, 0.85);
-  }
-  .topbar-inner {
-    max-width: 1180px;
+  .nav {
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0.85rem 1.25rem;
+    height: 68px;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+    gap: 20px;
   }
   .brand {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-  }
-  .brand-mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    background: linear-gradient(135deg, var(--accent), var(--green));
-    display: grid;
-    place-items: center;
-    color: #06101a;
-    font-weight: 800;
-    font-size: 1rem;
-    letter-spacing: -0.03em;
-  }
-  .brand-name {
-    font-weight: 750;
-    font-size: 1.15rem;
-    letter-spacing: -0.02em;
-  }
-  .badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
+    gap: 12px;
+  }
+  .brand-wordmark {
+    font-family: var(--serif);
+    font-size: 27px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 6px 11px;
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--muted);
     border: 1px solid var(--border);
-    background: var(--bg-elev);
-    color: var(--text-muted);
+    white-space: nowrap;
   }
-  .badge-live {
-    border-color: rgba(16, 185, 129, 0.35);
-    background: var(--green-bg);
-    color: var(--green);
+  .pill-sage {
+    background: var(--sage);
+    color: var(--sage-ink);
+    border-color: transparent;
   }
-  .dot {
-    width: 7px;
-    height: 7px;
+  .pill-butter {
+    background: var(--butter);
+    color: var(--butter-ink);
+    border-color: transparent;
+  }
+  .dot-live {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: currentColor;
+    background: #2f6f3e;
   }
 
-  .topbar-controls {
+  .nav-links {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
-    flex-wrap: wrap;
+    gap: 28px;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .nav-links a { transition: color 0.15s ease; }
+  .nav-links a:hover { color: var(--ink); }
+  @media (max-width: 880px) {
+    .nav-links { display: none; }
   }
 
-  select, input {
-    font-family: inherit;
-    color: var(--text);
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 0.55rem 0.75rem;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  select:focus, input:focus {
-    border-color: var(--border-focus);
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
-  .net-select {
-    font-size: 0.8rem;
-    padding: 0.45rem 0.65rem;
-    background: var(--bg-elev);
-    cursor: pointer;
-  }
-
+  /* Newcomer Buttons & Form Inputs */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
-    font-family: inherit;
-    font-weight: 600;
-    font-size: 0.88rem;
-    padding: 0.55rem 0.95rem;
-    border-radius: 9px;
+    gap: 7px;
+    font-family: var(--sans);
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.2;
+    padding: 11px 20px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border);
-    background: var(--bg-elev);
-    color: var(--text);
+    background: var(--card);
+    color: var(--ink);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
     white-space: nowrap;
   }
   .btn:hover:not(:disabled) {
-    border-color: var(--text-dim);
-    transform: translateY(-1px);
+    border-color: var(--border-strong);
+    background: var(--surface-subtle);
   }
+  .btn:active:not(:disabled) { transform: scale(0.99); }
   .btn:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
-    transform: none;
   }
-  .btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #04111d;
-    font-weight: 700;
+  .btn-dark {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #ffffff;
+    padding: 12px 22px;
   }
-  [data-theme="light"] .btn-primary { color: #ffffff; }
-  .btn-primary:hover:not(:disabled) {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
+  .btn-dark:hover:not(:disabled) {
+    background: #27272a;
+    border-color: #27272a;
   }
-  .btn-keeper {
-    background: var(--amber);
-    border-color: var(--amber);
-    color: #160d00;
-    font-weight: 700;
+  .btn-butter {
+    background: var(--butter);
+    border-color: #ebd068;
+    color: var(--butter-ink);
+    font-weight: 600;
   }
-  .btn-keeper:hover:not(:disabled) {
-    filter: brightness(1.07);
+  .btn-butter:hover:not(:disabled) {
+    background: #f5d867;
+    border-color: #e2c453;
   }
-  .btn-green {
-    background: var(--green-bg);
-    border-color: rgba(16, 185, 129, 0.4);
-    color: var(--green);
+  .btn-sage {
+    background: var(--sage);
+    border-color: #ced7c3;
+    color: var(--sage-ink);
+    font-weight: 500;
   }
-  .btn-danger {
-    background: var(--red-bg);
-    border-color: rgba(239, 68, 68, 0.35);
-    color: var(--red);
+  .btn-sage:hover:not(:disabled) {
+    background: #d4dcc9;
+  }
+  .btn-ghost-danger {
+    color: var(--danger);
+    border-color: #f3d1d3;
+    background: #fffafa;
+  }
+  .btn-ghost-danger:hover:not(:disabled) {
+    background: var(--danger-bg);
+    border-color: #eab5b8;
   }
   .btn-sm {
-    font-size: 0.8rem;
-    padding: 0.38rem 0.7rem;
-    border-radius: 7px;
+    font-size: 13px;
+    padding: 8px 14px;
   }
-  .btn-block {
+  .btn-full {
     width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.96rem;
+    height: 48px;
+    font-size: 15px;
+    font-weight: 500;
   }
 
-  .wallet-pill {
+  .net-select {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+  }
+  .net-select:focus { border-color: var(--ink); }
+
+  .wallet-chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
-    background: var(--bg-elev);
+    gap: 9px;
+    height: 38px;
+    padding: 0 14px;
+    border-radius: var(--radius-pill);
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 0.38rem 0.7rem;
-    font-size: 0.82rem;
+    font-size: 13px;
   }
   .wallet-addr {
     font-family: var(--mono);
-    color: var(--accent);
+    font-size: 12.5px;
+    color: var(--ink);
     cursor: pointer;
   }
   .wallet-bal {
-    font-weight: 600;
-    color: var(--text);
-    padding-left: 0.5rem;
+    padding-left: 9px;
     border-left: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--ink-deep);
+    font-variant-numeric: tabular-nums;
   }
 
-  /* Hero */
+  /* Quiet Editorial Hero */
   .hero {
-    padding: 2rem 0 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+    padding: 64px 0 48px;
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    margin-bottom: 20px;
   }
   .hero h1 {
-    margin: 0 0 0.45rem;
-    font-size: clamp(1.55rem, 2.8vw, 2.15rem);
-    letter-spacing: -0.025em;
-    line-height: 1.2;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.75rem, 5.4vw, 4.35rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 20px;
+    text-wrap: balance;
   }
-  .hero p {
-    margin: 0;
-    color: var(--text-muted);
-    max-width: 680px;
-    font-size: 1rem;
+  .hero h1 em {
+    font-style: italic;
+    background: linear-gradient(180deg, transparent 62%, var(--sage) 62%);
+    padding: 0 4px;
   }
-  .hero-pills {
-    display: flex;
-    gap: 0.5rem;
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto 26px;
+    text-wrap: balance;
+  }
+  .hero-metrics {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     flex-wrap: wrap;
   }
-  .split-pill {
-    padding: 0.35rem 0.75rem;
-    border-radius: 8px;
-    font-size: 0.82rem;
-    font-weight: 650;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-  }
 
-  /* Alerts / Banners */
-  .banner {
-    margin: 0 0 1.25rem;
-    padding: 0.85rem 1rem;
-    border-radius: 11px;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
+  /* Banners */
+  .notice {
     display: none;
     align-items: center;
     justify-content: space-between;
-    gap: 0.8rem;
+    gap: 14px;
     flex-wrap: wrap;
-    font-size: 0.9rem;
+    padding: 14px 20px;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 14px;
+    margin-bottom: 20px;
   }
-  .banner.show { display: flex; }
-  .banner-warn {
-    border-color: rgba(245, 158, 11, 0.45);
-    background: var(--amber-bg);
+  .notice.show { display: flex; }
+  .notice-butter {
+    background: var(--butter-soft);
+    border-color: #ebd578;
+    color: var(--butter-ink);
   }
-  .banner-err {
-    border-color: rgba(239, 68, 68, 0.45);
-    background: var(--red-bg);
+  .notice-sage {
+    background: var(--sage);
+    border-color: #ccd6c0;
+    color: var(--sage-ink);
   }
-  .banner-ok {
-    border-color: rgba(16, 185, 129, 0.45);
-    background: var(--green-bg);
+  .notice-danger {
+    background: var(--danger-bg);
+    border-color: #f4c7c9;
+    color: var(--danger);
   }
 
-  /* Grid */
-  .main-grid {
+  /* Main Two-Column Bento Workspace */
+  .workspace {
     display: grid;
-    grid-template-columns: 430px 1fr;
-    gap: 1.5rem;
+    grid-template-columns: 440px 1fr;
+    gap: 24px;
     align-items: start;
   }
-  @media (max-width: 940px) {
-    .main-grid { grid-template-columns: 1fr; }
+  @media (max-width: 960px) {
+    .workspace { grid-template-columns: 1fr; }
   }
 
-  .card {
-    background: var(--bg-card);
+  .bento {
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.35rem;
-    box-shadow: var(--shadow);
+    border-radius: var(--radius-bento);
+    padding: 28px;
   }
-  .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.6rem;
-    margin-bottom: 1rem;
-  }
-  .card-title {
-    margin: 0;
-    font-size: 1.08rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+  @media (max-width: 560px) {
+    .bento { padding: 20px; }
   }
 
-  /* Presets */
-  .preset-label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-dim);
-    margin-bottom: 0.45rem;
-    display: block;
+  .bento-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
   }
-  .presets {
+  .bento-title {
+    font-family: var(--serif);
+    font-size: 30px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    color: var(--ink);
+  }
+  .bento-sub {
+    font-size: 13px;
+    color: var(--subtle);
+  }
+
+  /* Preset Grid inside Create Bento */
+  .section-kicker {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--subtle);
+    margin-bottom: 8px;
+  }
+  .preset-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.45rem;
-    margin-bottom: 0.6rem;
+    gap: 8px;
+    margin-bottom: 10px;
   }
-  .preset-btn {
+  .preset-tile {
     text-align: left;
-    padding: 0.5rem 0.65rem;
-    border-radius: 9px;
+    padding: 10px 12px;
+    border-radius: var(--radius-input);
     border: 1px solid var(--border);
-    background: var(--bg-elev);
-    color: var(--text);
+    background: var(--card);
+    color: var(--ink);
+    font-family: var(--sans);
     cursor: pointer;
-    font-family: inherit;
-    font-size: 0.82rem;
-    transition: all 0.14s;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .preset-btn b {
+  .preset-tile b {
     display: block;
-    font-size: 0.83rem;
-    margin-bottom: 0.08rem;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 1px;
   }
-  .preset-btn span {
-    font-size: 0.73rem;
-    color: var(--text-muted);
+  .preset-tile span {
+    display: block;
+    font-size: 12px;
+    color: var(--subtle);
   }
-  .preset-btn:hover { border-color: var(--text-dim); }
-  .preset-btn.active {
-    border-color: var(--accent);
-    background: rgba(56, 189, 248, 0.1);
+  .preset-tile:hover { border-color: var(--border-strong); }
+  .preset-tile.active {
+    border-color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+    background: var(--card);
   }
-  .preset-desc {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    background: var(--bg-elev);
-    border-radius: 8px;
-    padding: 0.55rem 0.75rem;
-    margin-bottom: 1rem;
-    border-left: 3px solid var(--accent);
+  .preset-note {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    padding: 11px 14px;
+    margin-bottom: 18px;
   }
 
-  /* Form fields */
-  .field { margin-bottom: 0.95rem; }
-  .field-top {
+  /* Newcomer 46px Form Inputs */
+  .field { margin-bottom: 15px; }
+  .field-label-row {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 0.35rem;
-    font-size: 0.84rem;
+    margin-bottom: 6px;
   }
-  .field-top label { font-weight: 600; }
-  .field-hint {
-    font-size: 0.76rem;
-    color: var(--accent);
-    cursor: pointer;
+  .field-label-row label {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .text-btn {
     background: none;
     border: none;
     padding: 0;
-    font-family: inherit;
-  }
-  .field-hint:hover { text-decoration: underline; }
-  .field input, .field select { width: 100%; }
-  .mono-input { font-family: var(--mono); font-size: 0.83rem; }
-
-  .amount-row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.45rem;
-  }
-  .chips {
-    display: flex;
-    gap: 0.38rem;
-    margin-top: 0.42rem;
-    flex-wrap: wrap;
-  }
-  .chip {
-    font-size: 0.74rem;
-    padding: 0.2rem 0.52rem;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--bg-elev);
-    color: var(--text-muted);
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
     cursor: pointer;
-    font-family: inherit;
   }
-  .chip:hover { color: var(--text); border-color: var(--text-dim); }
+  .text-btn:hover { color: var(--ink); }
 
-  .split-preview {
-    background: var(--bg-input);
+  .input, .select {
+    width: 100%;
+    height: 46px;
+    padding: 12px 15px;
+    border-radius: var(--radius-input);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.7rem 0.85rem;
-    margin-bottom: 1rem;
-    font-size: 0.82rem;
+    background: var(--card);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s ease;
   }
-  .split-row {
+  .input::placeholder { color: #a1a1aa; }
+  .input:focus, .select:focus {
+    border-color: var(--ink);
+  }
+  .input-mono {
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  .amount-group {
+    display: grid;
+    grid-template-columns: 1fr 98px;
+    gap: 8px;
+  }
+  .quick-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .qchip {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .qchip:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  /* Split Summary Receipt Card */
+  .receipt {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 14px 16px;
+    margin: 18px 0;
+  }
+  .receipt-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.18rem 0;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 13.5px;
   }
-  .split-row span:first-child { color: var(--text-muted); }
-  .split-row strong { font-family: var(--mono); font-size: 0.81rem; }
+  .receipt-row span:first-child { color: var(--muted); }
+  .receipt-row strong {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .tag-inline {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+  }
 
-  .form-err {
-    color: var(--red);
-    font-size: 0.82rem;
-    margin-bottom: 0.75rem;
+  .form-error {
     display: none;
+    font-size: 13.5px;
+    color: var(--danger);
+    background: var(--danger-bg);
+    border: 1px solid #f4c7c9;
+    border-radius: var(--radius-input);
+    padding: 10px 13px;
+    margin-bottom: 14px;
   }
-  .form-err.show { display: block; }
+  .form-error.show { display: block; }
 
-  /* Vaults Board */
-  .tabs {
+  /* Right Bento: Vault Filter Pills & White Inner Cards */
+  .filter-bar {
     display: flex;
-    gap: 0.35rem;
+    gap: 6px;
     flex-wrap: wrap;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
   }
-  .tab {
-    font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 0.38rem 0.72rem;
-    border-radius: 8px;
+  .ftab {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
+    background: var(--card);
+    color: var(--muted);
     cursor: pointer;
+    transition: all 0.14s ease;
   }
-  .tab.active {
-    background: var(--bg-elev);
-    color: var(--text);
-    border-color: var(--text-dim);
+  .ftab:hover { color: var(--ink); }
+  .ftab.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #ffffff;
   }
 
-  .vault-list {
+  .vault-stack {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 12px;
   }
-  .vault-card {
-    background: var(--bg-elev);
+  .vcard {
+    background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1rem 1.1rem;
-    transition: border-color 0.15s;
+    border-radius: var(--radius-card);
+    padding: 20px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .vault-card.claimable {
-    border-color: rgba(245, 158, 11, 0.55);
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15);
+  .vcard:hover {
+    border-color: var(--border-strong);
   }
-  .vault-top {
+  .vcard.is-claimable {
+    border-color: #e4c95a;
+    box-shadow: 0 8px 24px rgba(248, 223, 128, 0.22);
+  }
+
+  .vcard-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
+    gap: 10px;
     flex-wrap: wrap;
-    margin-bottom: 0.65rem;
+    margin-bottom: 12px;
   }
-  .vault-id {
-    font-weight: 750;
-    font-size: 1rem;
+  .vcard-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 10px;
   }
-  .status-pill {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.18rem 0.55rem;
-    border-radius: 999px;
+  .vcard-num {
+    font-family: var(--serif);
+    font-size: 24px;
+    line-height: 1;
+    color: var(--ink);
   }
-  .st-active { background: var(--green-bg); color: var(--green); }
-  .st-claimable { background: var(--amber-bg); color: var(--amber); }
-  .st-released { background: rgba(56, 189, 248, 0.14); color: var(--accent); }
-  .st-cancelled { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+  .ext-link {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--subtle);
+    border-bottom: 1px solid transparent;
+  }
+  .ext-link:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
 
-  .countdown-box {
+  .timer-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    border-radius: var(--radius-input);
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
     font-family: var(--mono);
-    font-size: 0.86rem;
-    font-weight: 600;
-    padding: 0.45rem 0.7rem;
-    border-radius: 8px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    margin-bottom: 0.75rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
   }
-  .countdown-time.expired { color: var(--amber); }
-  .countdown-time.active { color: var(--green); }
+  .timer-strip.strip-claimable {
+    background: var(--butter-soft);
+    border-color: #ecd579;
+    color: var(--butter-ink);
+  }
+  .timer-strip.strip-active {
+    background: #f4f7f0;
+    border-color: #d7e0cc;
+    color: var(--ink-deep);
+  }
 
-  .vault-meta {
+  .vmeta-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem 1rem;
-    font-size: 0.82rem;
-    margin-bottom: 0.8rem;
+    gap: 12px 16px;
+    margin-bottom: 14px;
   }
   @media (max-width: 560px) {
-    .vault-meta { grid-template-columns: 1fr; }
+    .vmeta-grid { grid-template-columns: 1fr; }
   }
-  .meta-item span {
+  .vmeta-item small {
     display: block;
-    font-size: 0.73rem;
-    color: var(--text-dim);
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--subtle);
+    margin-bottom: 2px;
   }
-  .meta-item code {
+  .vmeta-item code {
     font-family: var(--mono);
-    font-size: 0.8rem;
-    color: var(--text);
+    font-size: 12.5px;
+    color: var(--ink);
   }
-  .you-tag {
+  .you-pill {
     display: inline-block;
     font-family: var(--sans);
-    font-size: 0.68rem;
-    font-weight: 700;
-    padding: 0.05rem 0.38rem;
-    border-radius: 4px;
-    background: rgba(56, 189, 248, 0.18);
-    color: var(--accent);
-    margin-left: 0.3rem;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: var(--radius-pill);
+    background: var(--sage);
+    color: var(--sage-ink);
+    margin-left: 6px;
+    vertical-align: middle;
   }
 
-  .vault-actions {
+  .vactions {
     display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
     align-items: center;
-    padding-top: 0.7rem;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 14px;
     border-top: 1px solid var(--border);
   }
-  .guard-note {
-    font-size: 0.77rem;
-    color: var(--text-muted);
+  .vnote {
     width: 100%;
-    margin-top: 0.25rem;
+    font-size: 12.5px;
+    color: var(--subtle);
+    margin-top: 2px;
   }
-  .topup-inline {
+  .topup-drawer {
     display: none;
     width: 100%;
-    gap: 0.45rem;
-    margin-top: 0.45rem;
+    gap: 8px;
+    margin-top: 8px;
   }
-  .topup-inline.show { display: flex; }
+  .topup-drawer.show { display: flex; }
 
-  .empty-state {
+  .empty-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 40px 20px;
     text-align: center;
-    padding: 2.2rem 1rem;
-    color: var(--text-muted);
-    font-size: 0.92rem;
+    color: var(--muted);
+    font-size: 14.5px;
   }
 
+  /* Editorial 5 Use-Cases Section (Newcomer Bento Row) */
+  .usecases-section {
+    padding: 80px 0 40px;
+  }
+  .section-header {
+    text-align: center;
+    max-width: 620px;
+    margin: 0 auto 36px;
+  }
+  .section-header h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2rem, 3.6vw, 2.85rem);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin-bottom: 10px;
+  }
+  .section-header p {
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .usecase-bento {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 1020px) {
+    .usecase-bento { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .usecase-bento { grid-template-columns: 1fr; }
+  }
+  .uc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
+  }
+  .uc-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--ink);
+    background: var(--surface-subtle);
+  }
+  .uc-num {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--subtle);
+  }
+  .uc-card h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 23px;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    margin: 6px 0 8px;
+  }
+  .uc-card p {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .uc-cta {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* Minimalist Newcomer Footer */
   .footer {
-    margin-top: 2.5rem;
-    padding-top: 1.25rem;
+    margin-top: 56px;
+    padding: 32px 0 48px;
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 20px;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    font-size: 0.82rem;
-    color: var(--text-dim);
+    font-size: 13.5px;
+    color: var(--muted);
   }
-  .footer-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .footer-links a:hover { color: var(--ink); }
 </style>
 </head>
 <body>
 
-<header class="topbar">
-  <div class="topbar-inner">
+<header class="nav-wrap">
+  <nav class="nav" aria-label="Primary">
     <div class="brand">
-      <div class="brand-mark">HR</div>
-      <div>
-        <span class="brand-name">HeirRealm</span>
-      </div>
-      <span class="badge badge-live" id="netBadge"><span class="dot"></span> Onyx Testnet</span>
+      <a href="#" class="brand-wordmark">HeirRealm</a>
+      <span class="pill pill-sage" id="netBadge"><span class="dot-live"></span> Onyx Testnet</span>
     </div>
 
-    <div class="topbar-controls">
+    <div class="nav-links">
+      <a href="#workspace">Create Vault</a>
+      <a href="#vaultsBoard">Live Vaults</a>
+      <a href="#useCases">Use Cases</a>
+      <a id="gnowebNavLink" href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">GnoWeb &#8599;</a>
+    </div>
+
+    <div class="nav-right">
       <select id="networkSelect" class="net-select" aria-label="Select Gno network">
-        <option value="onyx">Onyx Testnet (onyx-1)</option>
-        <option value="local">Local gnodev (dev)</option>
+        <option value="onyx">Onyx (onyx-1)</option>
+        <option value="local">Local gnodev</option>
       </select>
-      <a id="gnowebLink" class="btn btn-sm" href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">
-        Verify on GnoWeb &#8599;
-      </a>
-      <button class="btn btn-sm" id="themeBtn" type="button" title="Toggle dark/light theme">Theme</button>
       <div id="walletArea">
-        <button class="btn btn-primary" id="connectBtn" type="button">Connect Adena</button>
+        <button class="btn btn-dark" id="connectBtn" type="button">Connect Adena</button>
       </div>
     </div>
-  </div>
+  </nav>
 </header>
 
-<div class="container">
+<main class="shell">
+  <!-- Editorial Hero -->
   <section class="hero">
-    <div>
-      <h1>Inactivity-triggered release for Gno.</h1>
-      <p>Lock funds, name who should receive them, and set a check-in window. Check in and nothing happens. Go quiet, and any stranger can trigger the release — paid 2% to move 98% to your recipient.</p>
+    <div class="hero-eyebrow">
+      <span class="pill">Inactivity-triggered release on Gno.land &middot; No custodian</span>
     </div>
-    <div class="hero-pills">
-      <span class="split-pill" style="color:var(--accent)">98% &rarr; Recipient</span>
-      <span class="split-pill" style="color:var(--amber)">2% &rarr; Keeper</span>
-      <span class="split-pill" style="color:var(--green)">0 Custodians</span>
+    <h1>If you <em>go quiet</em>, your funds still reach who should have them.</h1>
+    <p class="hero-sub">
+      Lock GNOT, name a recipient, and set a check-in window. Check in and nothing happens. Miss the window and any stranger can trigger the release — earning 2% to deliver 98% atomically.
+    </p>
+    <div class="hero-metrics">
+      <span class="pill pill-sage">98% &rarr; Recipient</span>
+      <span class="pill pill-butter">2% &rarr; Keeper Incentive</span>
+      <span class="pill">0% Trusted Third Parties</span>
     </div>
   </section>
 
-  <!-- Status / Error / Network Banners -->
-  <div class="banner banner-err" id="adenaMissingBanner">
+  <!-- Contextual Notices -->
+  <div class="notice notice-danger" id="adenaMissingBanner">
     <div>
-      <strong>Adena Wallet not detected.</strong> Install the Adena Chrome/Brave extension to sign transactions (if opening as a local file, serve via <code>http://localhost</code> or GitHub Pages so extensions can inject <code>window.adena</code>).
+      <strong>Adena Wallet not found.</strong> Install the Adena browser extension to sign transactions (make sure you open this page via <code>https://</code> or <code>http://localhost</code> so Adena injects <code>window.adena</code>).
     </div>
-    <a class="btn btn-sm btn-primary" href="https://adena.app/" target="_blank" rel="noopener">Get Adena Wallet &#8599;</a>
+    <a class="btn btn-dark btn-sm" href="https://adena.app/" target="_blank" rel="noopener">Install Adena &#8599;</a>
   </div>
 
-  <div class="banner banner-warn" id="wrongNetBanner">
-    <div id="wrongNetText">Your Adena wallet is connected to a different network.</div>
-    <button class="btn btn-sm btn-keeper" id="switchNetBtn" type="button">Switch Adena Network</button>
+  <div class="notice notice-butter" id="wrongNetBanner">
+    <div id="wrongNetText">Your Adena wallet is on a different Gno network.</div>
+    <button class="btn btn-dark btn-sm" id="switchNetBtn" type="button">Switch Network</button>
   </div>
 
-  <div class="banner" id="txBanner">
+  <div class="notice" id="txBanner">
     <div id="txBannerText"></div>
     <button class="btn btn-sm" type="button" onclick="document.getElementById('txBanner').classList.remove('show')">Dismiss</button>
   </div>
 
-  <div class="main-grid">
-    <!-- LEFT: CREATE VAULT -->
-    <section class="card">
-      <div class="card-header">
-        <h2 class="card-title">Create a Vault</h2>
-        <span class="badge">Gas limit: 8M</span>
+  <!-- Main Bento Workspace -->
+  <section class="workspace" id="workspace">
+    <!-- Left Bento: Create Vault -->
+    <div class="bento">
+      <div class="bento-head">
+        <h2 class="bento-title">Create a vault</h2>
+        <span class="bento-sub">8M gas ceiling</span>
       </div>
 
-      <span class="preset-label">Use-Case Preset</span>
-      <div class="presets" id="presetGrid">
-        <button type="button" class="preset-btn active" data-preset="inheritance" data-sec="7776000">
-          <b>1 &middot; Inheritance</b>
+      <span class="section-kicker">Choose a scenario</span>
+      <div class="preset-grid" id="presetGrid">
+        <button type="button" class="preset-tile active" data-preset="inheritance" data-sec="7776000">
+          <b>Inheritance</b>
           <span>90-day check-in</span>
         </button>
-        <button type="button" class="preset-btn" data-preset="dao" data-sec="2592000">
-          <b>2 &middot; DAO Treasury</b>
+        <button type="button" class="preset-tile" data-preset="dao" data-sec="2592000">
+          <b>DAO Treasury</b>
           <span>30-day succession</span>
         </button>
-        <button type="button" class="preset-btn" data-preset="escrow" data-sec="2592000">
-          <b>3 &middot; Freelancer Escrow</b>
+        <button type="button" class="preset-tile" data-preset="escrow" data-sec="2592000">
+          <b>Freelancer Escrow</b>
           <span>30-day client window</span>
         </button>
-        <button type="button" class="preset-btn" data-preset="gift" data-sec="31536000">
-          <b>4 &middot; Time-Locked Gift</b>
+        <button type="button" class="preset-tile" data-preset="gift" data-sec="31536000">
+          <b>Time-Locked Gift</b>
           <span>365-day trust</span>
         </button>
-        <button type="button" class="preset-btn" data-preset="dormant" data-sec="15552000">
-          <b>5 &middot; Dormant Funds</b>
+        <button type="button" class="preset-tile" data-preset="dormant" data-sec="15552000">
+          <b>Dormant Funds</b>
           <span>180-day return</span>
         </button>
-        <button type="button" class="preset-btn" data-preset="demo" data-sec="60">
-          <b>&#9889; 60s Live Demo</b>
-          <span>Expires in 1 min</span>
+        <button type="button" class="preset-tile" data-preset="demo" data-sec="60">
+          <b>60s Live Demo</b>
+          <span>1-min fast test</span>
         </button>
       </div>
-      <div class="preset-desc" id="presetDesc">
-        <strong>Inheritance:</strong> Name a family member as recipient. If you lose your keys or pass away, funds release after 90 days of inactivity — no lawyer or shared seed phrase.
+
+      <div class="preset-note" id="presetDesc">
+        <strong>Inheritance:</strong> Name a family member as recipient. If you lose your keys or pass away, funds move after 90 days of inactivity — no lawyer or shared seed phrase.
       </div>
 
       <form id="createForm" novalidate>
         <div class="field">
-          <div class="field-top">
-            <label for="beneficiaryInput">Recipient Address (<code>g1...</code>)</label>
-            <button type="button" class="field-hint" id="fillDemoAddrBtn">Use demo recipient</button>
+          <div class="field-label-row">
+            <label for="beneficiaryInput">Recipient address</label>
+            <button type="button" class="text-btn" id="fillDemoAddrBtn">Fill demo recipient</button>
           </div>
-          <input id="beneficiaryInput" class="mono-input" type="text" placeholder="g1..." autocomplete="off" spellcheck="false" required />
+          <input id="beneficiaryInput" class="input input-mono" type="text" placeholder="g1..." autocomplete="off" spellcheck="false" required />
         </div>
 
         <div class="field">
-          <div class="field-top">
-            <label for="amountInput">Initial Deposit</label>
-            <span style="font-size:0.75rem;color:var(--text-dim)">1 GNOT = 1,000,000 ugnot</span>
+          <div class="field-label-row">
+            <label for="amountInput">Deposit amount</label>
+            <span style="font-size:12px;color:var(--subtle)">1 GNOT = 1,000,000 ugnot</span>
           </div>
-          <div class="amount-row">
-            <input id="amountInput" type="text" inputmode="decimal" value="0.01" placeholder="0.01" required />
-            <select id="unitSelect" aria-label="Token unit" style="width:auto">
+          <div class="amount-group">
+            <input id="amountInput" class="input" type="text" inputmode="decimal" value="0.01" placeholder="0.01" required />
+            <select id="unitSelect" class="select" aria-label="Currency unit">
               <option value="GNOT" selected>GNOT</option>
               <option value="ugnot">ugnot</option>
             </select>
           </div>
-          <div class="chips">
-            <button type="button" class="chip" data-amt="0.01" data-unit="GNOT">0.01 GNOT</button>
-            <button type="button" class="chip" data-amt="0.1" data-unit="GNOT">0.1 GNOT</button>
-            <button type="button" class="chip" data-amt="1" data-unit="GNOT">1 GNOT</button>
-            <button type="button" class="chip" data-amt="1000" data-unit="ugnot">1,000 ugnot</button>
+          <div class="quick-chips">
+            <button type="button" class="qchip" data-amt="0.01" data-unit="GNOT">0.01 GNOT</button>
+            <button type="button" class="qchip" data-amt="0.1" data-unit="GNOT">0.1 GNOT</button>
+            <button type="button" class="qchip" data-amt="1" data-unit="GNOT">1 GNOT</button>
+            <button type="button" class="qchip" data-amt="1000" data-unit="ugnot">1,000 ugnot</button>
           </div>
         </div>
 
         <div class="field">
-          <div class="field-top">
-            <label for="intervalSelect">Check-in Window</label>
-            <span id="intervalSecLabel" style="font-family:var(--mono);font-size:0.76rem;color:var(--text-dim)">7,776,000s</span>
+          <div class="field-label-row">
+            <label for="intervalSelect">Check-in window</label>
+            <span id="intervalSecLabel" style="font-family:var(--mono);font-size:12px;color:var(--subtle)">7,776,000s</span>
           </div>
-          <select id="intervalSelect">
-            <option value="60">60 seconds (minimum — fast demo)</option>
-            <option value="300">5 minutes (300s)</option>
-            <option value="3600">1 hour (3,600s)</option>
-            <option value="86400">24 hours (86,400s)</option>
+          <select id="intervalSelect" class="select">
+            <option value="60">60 seconds (minimum — live demo)</option>
+            <option value="300">5 minutes</option>
+            <option value="3600">1 hour</option>
+            <option value="86400">24 hours</option>
             <option value="604800">7 days</option>
             <option value="2592000">30 days</option>
             <option value="7776000" selected>90 days</option>
@@ -777,67 +971,125 @@
             <option value="31536000">365 days (maximum)</option>
             <option value="custom">Custom seconds...</option>
           </select>
-          <input id="customIntervalInput" type="number" min="60" max="31536000" step="1" value="60" placeholder="Seconds (60 - 31536000)" style="margin-top:0.45rem;display:none" />
+          <input id="customIntervalInput" class="input" type="number" min="60" max="31536000" step="1" value="60" placeholder="Seconds (60 to 31,536,000)" style="margin-top:8px;display:none" />
         </div>
 
-        <div class="split-preview">
-          <div class="split-row">
-            <span>Attached <code>-send</code></span>
+        <div class="receipt">
+          <div class="receipt-row">
+            <span>Vault deposit (<code>-send</code>)</span>
             <strong id="prevTotal">10,000 ugnot (0.01 GNOT)</strong>
           </div>
-          <div class="split-row">
-            <span>Recipient receives (98%)</span>
-            <strong id="prevBen" style="color:var(--accent)">9,800 ugnot (0.0098 GNOT)</strong>
+          <div class="receipt-row">
+            <span>Recipient share (98%)</span>
+            <span class="tag-inline pill-sage" id="prevBen">9,800 ugnot (0.0098 GNOT)</span>
           </div>
-          <div class="split-row">
-            <span>Keeper reward (2%)</span>
-            <strong id="prevKeeper" style="color:var(--amber)">200 ugnot (0.0002 GNOT)</strong>
+          <div class="receipt-row">
+            <span>Keeper fee (2%)</span>
+            <span class="tag-inline pill-butter" id="prevKeeper">200 ugnot (0.0002 GNOT)</span>
           </div>
         </div>
 
-        <div class="form-err" id="formErr"></div>
+        <div class="form-error" id="formErr"></div>
 
-        <button class="btn btn-primary btn-block" id="createSubmitBtn" type="submit">
+        <button class="btn btn-dark btn-full" id="createSubmitBtn" type="submit">
           Lock Funds &amp; Create Vault
         </button>
       </form>
-    </section>
+    </div>
 
-    <!-- RIGHT: LIVE VAULTS & KEEPER BOARD -->
-    <section class="card">
-      <div class="card-header">
+    <!-- Right Bento: Live Vaults & Keeper Board -->
+    <div class="bento" id="vaultsBoard">
+      <div class="bento-head">
         <div>
-          <h2 class="card-title">Live On-Chain Vaults</h2>
-          <div style="font-size:0.78rem;color:var(--text-dim)" id="realmPathLabel">gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm</div>
+          <h2 class="bento-title">Live vaults &amp; keeper board</h2>
+          <div class="bento-sub" id="realmPathLabel" style="font-family:var(--mono);font-size:11.5px;margin-top:3px">
+            gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+          </div>
         </div>
         <button class="btn btn-sm" id="refreshBtn" type="button">&#8635; Refresh</button>
       </div>
 
-      <div class="tabs" id="filterTabs">
-        <button type="button" class="tab active" data-filter="all">All (<span id="countAll">0</span>)</button>
-        <button type="button" class="tab" data-filter="claimable">Claimable by Keepers (<span id="countClaimable">0</span>)</button>
-        <button type="button" class="tab" data-filter="mine">My Vaults (<span id="countMine">0</span>)</button>
-        <button type="button" class="tab" data-filter="released">Released (<span id="countReleased">0</span>)</button>
+      <div class="filter-bar" id="filterTabs">
+        <button type="button" class="ftab active" data-filter="all">All (<span id="countAll">0</span>)</button>
+        <button type="button" class="ftab" data-filter="claimable">Claimable (<span id="countClaimable">0</span>)</button>
+        <button type="button" class="ftab" data-filter="mine">My Vaults (<span id="countMine">0</span>)</button>
+        <button type="button" class="ftab" data-filter="released">Released (<span id="countReleased">0</span>)</button>
       </div>
 
-      <div id="vaultList" class="vault-list">
-        <div class="empty-state">Loading live vaults from Onyx RPC...</div>
+      <div id="vaultList" class="vault-stack">
+        <div class="empty-card">Querying live vaults from Onyx RPC...</div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
+
+  <!-- Editorial 5 Use-Cases Bento Row -->
+  <section class="usecases-section" id="useCases">
+    <div class="section-header">
+      <h2>One primitive, <em>five</em> everyday guarantees.</h2>
+      <p>Every scenario runs on the exact same non-custodial Gno realm, timer, and 98/2 keeper incentive.</p>
+    </div>
+
+    <div class="usecase-bento" id="useCaseCards">
+      <article class="uc-card" data-pick="inheritance">
+        <div>
+          <span class="uc-num">01 / INHERITANCE</span>
+          <h3>Family inheritance</h3>
+          <p>If a holder dies or loses their keys, GNOT moves to family after the check-in window — no seed phrase on paper.</p>
+        </div>
+        <span class="uc-cta">Use 90d preset &rarr;</span>
+      </article>
+
+      <article class="uc-card" data-pick="dao">
+        <div>
+          <span class="uc-num">02 / SUCCESSION</span>
+          <h3>DAO &amp; project treasury</h3>
+          <p>Maintainer goes quiet? Treasury funds automatically pass to the successor or community multisig.</p>
+        </div>
+        <span class="uc-cta">Use 30d preset &rarr;</span>
+      </article>
+
+      <article class="uc-card" data-pick="escrow">
+        <div>
+          <span class="uc-num">03 / ESCROW</span>
+          <h3>Freelancer protection</h3>
+          <p>Client locks payment and checks in while work continues. If the client vanishes, the freelancer still gets 98%.</p>
+        </div>
+        <span class="uc-cta">Use 30d preset &rarr;</span>
+      </article>
+
+      <article class="uc-card" data-pick="gift">
+        <div>
+          <span class="uc-num">04 / TRUST</span>
+          <h3>Time-locked gift</h3>
+          <p>Parents lock funds for a child while staying active — transferring only when check-ins stop.</p>
+        </div>
+        <span class="uc-cta">Use 365d preset &rarr;</span>
+      </article>
+
+      <article class="uc-card" data-pick="dormant">
+        <div>
+          <span class="uc-num">05 / TREASURY</span>
+          <h3>Dormant fund recovery</h3>
+          <p>Unclaimed ecosystem grants or team allocations return to a community pool instead of sitting lost forever.</p>
+        </div>
+        <span class="uc-cta">Use 180d preset &rarr;</span>
+      </article>
+    </div>
+  </section>
 
   <footer class="footer">
-    <div>
-      HeirRealm &middot; Built for the Gno.land Gnome Tavern Hackathon &middot; Non-custodial, 98/2 keeper incentive, no backend.
+    <div class="footer-brand">
+      <span class="brand-wordmark" style="font-size:22px">HeirRealm</span>
+      <span>Gnome Tavern Hackathon &middot; Non-custodial Gno realm</span>
     </div>
     <div class="footer-links">
-      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">Onyx Realm</a>
-      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm$source" target="_blank" rel="noopener">On-Chain Source</a>
-      <a href="https://github.com/Emmanuel-webDev/HeirRealm" target="_blank" rel="noopener">GitHub Repo</a>
-      <a href="https://faucet.gno.land" target="_blank" rel="noopener">Onyx Faucet</a>
+      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">Onyx GnoWeb</a>
+      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm$source" target="_blank" rel="noopener">Realm Source</a>
+      <a href="https://github.com/Emmanuel-webDev/HeirRealm" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://faucet.gno.land" target="_blank" rel="noopener">Gno Faucet</a>
     </div>
   </footer>
-</div>
+</main>
 
 <script>
 (() => {
@@ -849,8 +1101,8 @@
       gnoweb: "https://onyx.testnets.gno.land",
       pkgPath: "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
       shortPath: "/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
-      gasFee: 20000,      // 0.02 GNOT (20,000 ugnot) covers 8M gas + min-gas-prices comfortably
-      gasWanted: 8000000  // Measured: CreateVault ~4.6M, TriggerRelease ~5.3M
+      gasFee: 20000,
+      gasWanted: 8000000
     },
     local: {
       label: "Local gnodev",
@@ -865,17 +1117,17 @@
   };
 
   const PRESET_COPY = {
-    inheritance: "<strong>Inheritance:</strong> Name a family member as recipient. If you lose your keys or pass away, funds release after 90 days of inactivity — no lawyer or shared seed phrase.",
-    dao: "<strong>DAO / Project Treasury Succession:</strong> Name a successor or multisig/community wallet. If the maintainer disappears for 30 days, the treasury moves automatically instead of dying with them.",
+    inheritance: "<strong>Inheritance:</strong> Name a family member as recipient. If you lose your keys or pass away, funds move after 90 days of inactivity — no lawyer or shared seed phrase.",
+    dao: "<strong>DAO / Project Treasury Succession:</strong> Name a successor or community wallet. If the maintainer disappears for 30 days, the treasury moves automatically instead of dying with them.",
     escrow: "<strong>Freelancer / Bounty Escrow:</strong> Client locks payment naming the freelancer as recipient and checks in while work continues. If the client vanishes, the freelancer still gets paid 98%.",
     gift: "<strong>Time-Locked Gift / Trust:</strong> Lock funds for a child or family member while staying active. Moves only when you stop checking in — never a paper seed phrase.",
-    dormant: "<strong>Dormant / Unclaimed Funds:</strong> Project or team funds return to a community wallet after 180 days of inactivity rather than sitting dead forever.",
-    demo: "<strong>60-Second Live Demo:</strong> Fastest allowed check-in window (60s). Create a vault, watch the live countdown hit zero, and let any keeper claim 2% to release 98%."
+    dormant: "<strong>Dormant / Unclaimed Funds:</strong> Project or team funds return to a community wallet after 180 days of inactivity rather than sitting locked forever.",
+    demo: "<strong>60-Second Live Demo:</strong> Shortest allowed check-in window (60s). Create a vault, watch the live countdown reach zero, and trigger the 98/2 keeper split."
   };
 
   const DEMO_RECIPIENT = "g1y5lxm4jqzcu9djpgvxeqypag2hszwcdh422fyw";
   const MIN_INTERVAL = 60;
-  const MAX_INTERVAL = 365 * 24 * 60 * 60; // 31,536,000
+  const MAX_INTERVAL = 365 * 24 * 60 * 60;
 
   let currentNetKey = "onyx";
   let wallet = { connected: false, address: "", chainId: "", balanceUgnot: 0n };
@@ -886,7 +1138,7 @@
   const $ = (id) => document.getElementById(id);
   const net = () => NETWORKS[currentNetKey];
 
-  // --- Exact GNOT <-> ugnot BigInt Math (1 GNOT = 1,000,000 ugnot) ---
+  // Exact GNOT <-> ugnot BigInt conversion (1 GNOT = 1,000,000 ugnot)
   function parseToUgnot(rawStr, unit) {
     const s = String(rawStr || "").trim().replace(/,/g, "");
     if (!s) return null;
@@ -894,7 +1146,6 @@
       if (!/^\d+$/.test(s)) return null;
       return BigInt(s);
     }
-    // unit === "GNOT" -> up to 6 decimal places
     if (!/^\d+(\.\d{1,6})?$/.test(s)) return null;
     const [whole, frac = ""] = s.split(".");
     const fracPadded = (frac + "000000").slice(0, 6);
@@ -925,7 +1176,6 @@
       .replace(/"/g, "&quot;");
   }
 
-  // --- Encoding helpers for Tendermint / Gno RPC abci_query ---
   function utf8ToHex(str) {
     const bytes = new TextEncoder().encode(str);
     let hex = "0x";
@@ -953,14 +1203,13 @@
     return base64ToUtf8(resp?.Data || "");
   }
 
-  // --- Banner helpers ---
   function showBanner(type, html) {
     const el = $("txBanner");
-    el.className = `banner show ${type === "err" ? "banner-err" : type === "warn" ? "banner-warn" : "banner-ok"}`;
+    const cls = type === "err" ? "notice-danger" : type === "warn" ? "notice-butter" : "notice-sage";
+    el.className = `notice show ${cls}`;
     $("txBannerText").innerHTML = html;
   }
 
-  // --- Parse Vaults from live Render("") and Render("<id>") ---
   function parseDetailMarkdown(id, md) {
     const get = (label) => {
       const m = md.match(new RegExp(`^- ${label}:\\s*(.+)$`, "m"));
@@ -1018,11 +1267,10 @@
           return parseDetailMarkdown(id, md);
         })
       );
-      // Show newest / most actionable first (claimable -> active -> released)
       vaults = details.sort((a, b) => b.id - a.id);
       renderVaults();
     } catch (err) {
-      listEl.innerHTML = `<div class="empty-state">Could not reach ${escapeHtml(net().label)} RPC (<code>${escapeHtml(net().rpc)}</code>):<br>${escapeHtml(err.message)}</div>`;
+      listEl.innerHTML = `<div class="empty-card">Could not reach ${escapeHtml(net().label)} RPC (<code>${escapeHtml(net().rpc)}</code>):<br>${escapeHtml(err.message)}</div>`;
     }
   }
 
@@ -1067,34 +1315,36 @@
 
     const listEl = $("vaultList");
     if (filtered.length === 0) {
-      listEl.innerHTML = `<div class="empty-state">${
+      listEl.innerHTML = `<div class="empty-card">${
         vaults.length === 0
-          ? "No vaults on this network yet. Create Vault #1 on the left!"
-          : "No vaults match this filter."
+          ? "No vaults created on this network yet. Create Vault #1 on the left."
+          : "No vaults match the selected filter."
       }</div>`;
       return;
     }
 
     listEl.innerHTML = filtered.map((v) => {
       const expired = isVaultExpiredNow(v);
-      let stClass = "st-active", stLabel = "Active";
-      if (v.released) { stClass = "st-released"; stLabel = "Released"; }
-      else if (v.cancelled) { stClass = "st-cancelled"; stLabel = "Cancelled"; }
-      else if (expired) { stClass = "st-claimable"; stLabel = "Expired — Claimable"; }
+      let pillCls = "pill-sage", stLabel = "Active";
+      if (v.released) { pillCls = ""; stLabel = "Released"; }
+      else if (v.cancelled) { pillCls = ""; stLabel = "Cancelled"; }
+      else if (expired) { pillCls = "pill-butter"; stLabel = "Claimable · 2% Bounty"; }
 
       const isOwner = myAddr && v.owner === myAddr;
       const isBen = myAddr && v.beneficiary === myAddr;
 
+      let stripCls = "";
       let countdownHtml = "";
       if (v.released) {
-        countdownHtml = `<span>Released by keeper <code>${escapeHtml(shortAddr(v.keeper))}</code></span><span style="color:var(--text-dim)">${escapeHtml(v.releasedAt)}</span>`;
+        countdownHtml = `<span>Released by keeper <code>${escapeHtml(shortAddr(v.keeper))}</code></span><span style="color:var(--subtle)">${escapeHtml(v.releasedAt)}</span>`;
       } else if (v.cancelled) {
-        countdownHtml = `<span>Cancelled &amp; refunded to owner</span><span style="color:var(--text-dim)">Closed</span>`;
+        countdownHtml = `<span>Cancelled &amp; refunded in full to owner</span><span style="color:var(--subtle)">Closed</span>`;
       } else {
         const diff = v.deadlineMs - now;
+        stripCls = diff <= 0 ? "strip-claimable" : "strip-active";
         countdownHtml = diff <= 0
-          ? `<span class="countdown-time expired" data-deadline="${v.deadlineMs}">&#9889; Expired ${formatDuration(diff)} ago — Ready for Keeper</span><span style="color:var(--text-dim);font-size:0.76rem">${escapeHtml(v.deadlineStr)}</span>`
-          : `<span class="countdown-time active" data-deadline="${v.deadlineMs}">&#9201; ${formatDuration(diff)} remaining</span><span style="color:var(--text-dim);font-size:0.76rem">${escapeHtml(v.deadlineStr)}</span>`;
+          ? `<span data-deadline="${v.deadlineMs}" data-expired="1">Expired ${formatDuration(diff)} ago &middot; Ready for keeper</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`
+          : `<span data-deadline="${v.deadlineMs}" data-expired="0">${formatDuration(diff)} remaining</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`;
       }
 
       let actionsHtml = "";
@@ -1102,75 +1352,74 @@
         if (expired) {
           const blockedKeeper = isOwner || isBen;
           actionsHtml = `
-            <button type="button" class="btn btn-keeper btn-sm" data-act="release" data-id="${v.id}" ${blockedKeeper || busyVaultAction ? "disabled" : ""}>
-              &#9889; Trigger Release &mdash; Earn ${formatUgnot(v.keeperFee)} (2%)
+            <button type="button" class="btn btn-butter btn-sm" data-act="release" data-id="${v.id}" ${blockedKeeper || busyVaultAction ? "disabled" : ""}>
+              Trigger Release &middot; Earn ${formatUgnot(v.keeperFee)} (2%)
             </button>
             ${blockedKeeper
-              ? `<div class="guard-note">On-chain guard: you are the ${isOwner ? "Owner" : "Recipient"} of Vault #${v.id}. Switch to any third Adena wallet to claim the 2% keeper reward.</div>`
-              : `<div class="guard-note">Any stranger wallet (not Owner or Recipient) can execute this release and earn 2% atomically.</div>`
+              ? `<div class="vnote">Realm guard: you are connected as the ${isOwner ? "Owner" : "Recipient"} of Vault #${v.id}. Switch to a third Adena wallet to claim the 2% keeper fee.</div>`
+              : `<div class="vnote">Any third-party wallet (not Owner or Recipient) can trigger this release and receive 2% atomically.</div>`
             }
           `;
         } else if (isOwner) {
           actionsHtml = `
-            <button type="button" class="btn btn-green btn-sm" data-act="checkin" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
-              &#10003; Check In (Reset Timer)
+            <button type="button" class="btn btn-sage btn-sm" data-act="checkin" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+              Check In (Reset Timer)
             </button>
             <button type="button" class="btn btn-sm" data-act="toggle-topup" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
               + Top Up
             </button>
-            <button type="button" class="btn btn-danger btn-sm" data-act="cancel" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
-              &#10005; Cancel &amp; Refund
+            <button type="button" class="btn btn-ghost-danger btn-sm" data-act="cancel" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+              Cancel &amp; Refund
             </button>
-            <div class="topup-inline" id="topupBox-${v.id}">
-              <input type="text" id="topupInput-${v.id}" placeholder="Amount in GNOT (e.g. 0.01)" value="0.01" style="flex:1" />
-              <button type="button" class="btn btn-primary btn-sm" data-act="deposit" data-id="${v.id}">Send Deposit</button>
+            <div class="topup-drawer" id="topupBox-${v.id}">
+              <input type="text" class="input" id="topupInput-${v.id}" placeholder="GNOT amount (e.g. 0.01)" value="0.01" style="height:38px;flex:1" />
+              <button type="button" class="btn btn-dark btn-sm" data-act="deposit" data-id="${v.id}">Deposit</button>
             </div>
           `;
         } else {
-          actionsHtml = `<div class="guard-note">Active timer (${v.interval.toLocaleString()}s window). Connect as Owner (<code>${escapeHtml(shortAddr(v.owner))}</code>) to Check In, Top Up, or Cancel.</div>`;
+          actionsHtml = `<div class="vnote">Check-in window: ${v.interval.toLocaleString()}s. Connect as Owner (<code>${escapeHtml(shortAddr(v.owner))}</code>) to check in, top up, or cancel.</div>`;
         }
       }
 
       const detailUrl = `${net().gnoweb}${net().shortPath}:${v.id}`;
 
       return `
-        <article class="vault-card ${expired ? "claimable" : ""}">
-          <div class="vault-top">
-            <div class="vault-id">
-              <span>Vault #${v.id}</span>
-              <span class="status-pill ${stClass}">${stLabel}</span>
+        <article class="vcard ${expired ? "is-claimable" : ""}">
+          <div class="vcard-head">
+            <div class="vcard-title">
+              <span class="vcard-num">Vault #${v.id}</span>
+              <span class="pill ${pillCls}">${stLabel}</span>
             </div>
-            <a href="${escapeHtml(detailUrl)}" target="_blank" rel="noopener" style="font-size:0.78rem">GnoWeb #${v.id} &#8599;</a>
+            <a class="ext-link" href="${escapeHtml(detailUrl)}" target="_blank" rel="noopener">View on GnoWeb &#8599;</a>
           </div>
 
-          <div class="countdown-box">${countdownHtml}</div>
+          <div class="timer-strip ${stripCls}">${countdownHtml}</div>
 
-          <div class="vault-meta">
-            <div class="meta-item">
-              <span>Owner</span>
-              <code title="${escapeHtml(v.owner)}">${escapeHtml(shortAddr(v.owner))}</code>${isOwner ? '<b class="you-tag">YOU</b>' : ""}
+          <div class="vmeta-grid">
+            <div class="vmeta-item">
+              <small>Owner</small>
+              <code title="${escapeHtml(v.owner)}">${escapeHtml(shortAddr(v.owner))}</code>${isOwner ? '<span class="you-pill">You</span>' : ""}
             </div>
-            <div class="meta-item">
-              <span>Recipient (98%)</span>
-              <code title="${escapeHtml(v.beneficiary)}">${escapeHtml(shortAddr(v.beneficiary))}</code>${isBen ? '<b class="you-tag">YOU</b>' : ""}
+            <div class="vmeta-item">
+              <small>Recipient (98%)</small>
+              <code title="${escapeHtml(v.beneficiary)}">${escapeHtml(shortAddr(v.beneficiary))}</code>${isBen ? '<span class="you-pill">You</span>' : ""}
             </div>
-            <div class="meta-item">
-              <span>Vault Balance</span>
+            <div class="vmeta-item">
+              <small>Locked Balance</small>
               <code>${formatGnot(v.balance)} (${formatUgnot(v.balance)})</code>
             </div>
-            <div class="meta-item">
-              <span>Release Split (98% / 2%)</span>
+            <div class="vmeta-item">
+              <small>98% Recipient / 2% Keeper</small>
               <code>${formatUgnot(v.beneficiaryShare)} / ${formatUgnot(v.keeperFee)}</code>
             </div>
           </div>
 
-          ${actionsHtml ? `<div class="vault-actions">${actionsHtml}</div>` : ""}
+          ${actionsHtml ? `<div class="vactions">${actionsHtml}</div>` : ""}
         </article>
       `;
     }).join("");
   }
 
-  // Live 1s countdown ticker without re-rendering DOM inputs
   setInterval(() => {
     const now = Date.now();
     let needsRerender = false;
@@ -1178,19 +1427,18 @@
       const dl = Number(el.getAttribute("data-deadline"));
       if (!dl) return;
       const diff = dl - now;
-      const wasExpired = el.classList.contains("expired");
+      const wasExpired = el.getAttribute("data-expired") === "1";
       if (diff <= 0 && !wasExpired) {
         needsRerender = true;
       } else if (diff <= 0) {
-        el.innerHTML = `&#9889; Expired ${formatDuration(diff)} ago — Ready for Keeper`;
+        el.innerHTML = `Expired ${formatDuration(diff)} ago &middot; Ready for keeper`;
       } else {
-        el.innerHTML = `&#9201; ${formatDuration(diff)} remaining`;
+        el.textContent = `${formatDuration(diff)} remaining`;
       }
     });
     if (needsRerender) renderVaults();
   }, 1000);
 
-  // --- Adena Wallet Integration ---
   async function refreshBalance(addr) {
     if (!addr) return;
     try {
@@ -1206,14 +1454,14 @@
     const area = $("walletArea");
     const wrongBanner = $("wrongNetBanner");
     if (!wallet.connected) {
-      area.innerHTML = `<button class="btn btn-primary" id="connectBtn" type="button">Connect Adena</button>`;
+      area.innerHTML = `<button class="btn btn-dark" id="connectBtn" type="button">Connect Adena</button>`;
       $("connectBtn").addEventListener("click", connectAdena);
       wrongBanner.classList.remove("show");
       return;
     }
 
     area.innerHTML = `
-      <div class="wallet-pill">
+      <div class="wallet-chip">
         <span class="wallet-addr" id="copyAddrSpan" title="Click to copy ${escapeHtml(wallet.address)}">${escapeHtml(shortAddr(wallet.address))}</span>
         <span class="wallet-bal">${formatGnot(wallet.balanceUgnot)}</span>
       </div>
@@ -1224,7 +1472,7 @@
     });
 
     if (wallet.chainId && wallet.chainId !== net().chainId) {
-      $("wrongNetText").innerHTML = `Adena is currently on <code>${escapeHtml(wallet.chainId)}</code>, while this view targets <strong>${escapeHtml(net().label)} (<code>${escapeHtml(net().chainId)}</code>)</strong>.`;
+      $("wrongNetText").innerHTML = `Adena is set to <code>${escapeHtml(wallet.chainId)}</code>, while this page is viewing <strong>${escapeHtml(net().label)} (<code>${escapeHtml(net().chainId)}</code>)</strong>.`;
       wrongBanner.classList.add("show");
     } else {
       wrongBanner.classList.remove("show");
@@ -1241,7 +1489,7 @@
       await window.adena.AddEstablish("HeirRealm");
       const acct = await window.adena.GetAccount();
       if (!acct?.data?.address) {
-        throw new Error(acct?.message || "Could not read Adena account. Unlock Adena and try again.");
+        throw new Error(acct?.message || "Unlock your Adena wallet and try again.");
       }
       wallet.connected = true;
       wallet.address = acct.data.address;
@@ -1258,7 +1506,7 @@
       }
       return true;
     } catch (err) {
-      showBanner("err", `<strong>Wallet connection error:</strong> ${escapeHtml(err.message || String(err))}`);
+      showBanner("err", `<strong>Could not connect Adena:</strong> ${escapeHtml(err.message || String(err))}`);
       return false;
     }
   }
@@ -1278,7 +1526,7 @@
       }
       await connectAdena();
     } catch (err) {
-      showBanner("err", `Could not switch network automatically: ${escapeHtml(err.message || String(err))}. Switch to <code>${escapeHtml(net().chainId)}</code> inside Adena.`);
+      showBanner("err", `Please switch to <code>${escapeHtml(net().chainId)}</code> inside Adena (${escapeHtml(err.message || String(err))}).`);
     }
   });
 
@@ -1292,7 +1540,7 @@
       return null;
     }
     if (wallet.chainId && wallet.chainId !== net().chainId) {
-      showBanner("warn", `Please switch Adena to <code>${escapeHtml(net().chainId)}</code> before signing.`);
+      showBanner("warn", `Switch Adena to <code>${escapeHtml(net().chainId)}</code> first.`);
       return null;
     }
 
@@ -1321,13 +1569,20 @@
     return res;
   }
 
-  // --- Create Vault Form Logic ---
+  function selectPreset(presetKey) {
+    const btn = document.querySelector(`.preset-tile[data-preset="${presetKey}"]`);
+    if (!btn) return;
+    document.querySelectorAll(".preset-tile").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    $("presetDesc").innerHTML = PRESET_COPY[presetKey] || "";
+    $("intervalSelect").value = btn.dataset.sec;
+    $("customIntervalInput").style.display = "none";
+    updatePreview();
+  }
+
   function getSelectedIntervalSeconds() {
     const sel = $("intervalSelect").value;
-    if (sel === "custom") {
-      return Number($("customIntervalInput").value || 0);
-    }
-    return Number(sel);
+    return sel === "custom" ? Number($("customIntervalInput").value || 0) : Number(sel);
   }
 
   function updatePreview() {
@@ -1350,28 +1605,26 @@
   }
 
   $("presetGrid").addEventListener("click", (e) => {
-    const btn = e.target.closest(".preset-btn");
-    if (!btn) return;
-    document.querySelectorAll(".preset-btn").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    const key = btn.dataset.preset;
-    const sec = btn.dataset.sec;
-    $("presetDesc").innerHTML = PRESET_COPY[key] || "";
-    $("intervalSelect").value = sec;
-    $("customIntervalInput").style.display = "none";
-    updatePreview();
+    const btn = e.target.closest(".preset-tile");
+    if (btn) selectPreset(btn.dataset.preset);
+  });
+
+  $("useCaseCards").addEventListener("click", (e) => {
+    const card = e.target.closest("[data-pick]");
+    if (!card) return;
+    selectPreset(card.dataset.pick);
+    $("workspace").scrollIntoView({ behavior: "smooth" });
   });
 
   $("intervalSelect").addEventListener("change", () => {
-    const isCustom = $("intervalSelect").value === "custom";
-    $("customIntervalInput").style.display = isCustom ? "block" : "none";
+    $("customIntervalInput").style.display = $("intervalSelect").value === "custom" ? "block" : "none";
     updatePreview();
   });
   $("customIntervalInput").addEventListener("input", updatePreview);
   $("amountInput").addEventListener("input", updatePreview);
   $("unitSelect").addEventListener("change", updatePreview);
 
-  document.querySelectorAll(".chip").forEach((chip) => {
+  document.querySelectorAll(".qchip").forEach((chip) => {
     chip.addEventListener("click", () => {
       $("unitSelect").value = chip.dataset.unit;
       $("amountInput").value = chip.dataset.amt;
@@ -1399,7 +1652,7 @@
       return;
     }
     if (wallet.connected && ben === wallet.address) {
-      errEl.textContent = "Recipient cannot be the same as your connected Owner wallet (enforced by realm guard).";
+      errEl.textContent = "Recipient cannot equal your connected Owner wallet (enforced on-chain).";
       errEl.classList.add("show");
       return;
     }
@@ -1419,14 +1672,14 @@
     const submitBtn = $("createSubmitBtn");
     const origText = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = "Waiting for Adena signature...";
+    submitBtn.textContent = "Confirm in Adena...";
     try {
       const res = await callRealm("CreateVault", [ben, String(intervalSec)], ugnot);
       if (res) {
         const txHash = res?.data?.hash || "";
         showBanner(
           "ok",
-          `<strong>Vault created on ${escapeHtml(net().label)}!</strong> Attached <code>${formatUgnot(ugnot)}</code>.${txHash ? ` TX: <code>${escapeHtml(txHash)}</code>` : ""}`
+          `<strong>Vault created on ${escapeHtml(net().label)}!</strong> Locked <code>${formatUgnot(ugnot)}</code>.${txHash ? ` TX: <code>${escapeHtml(txHash)}</code>` : ""}`
         );
         await Promise.all([loadVaults(), refreshBalance(wallet.address)]);
         updateWalletUI();
@@ -1439,7 +1692,6 @@
     }
   });
 
-  // --- Vault Card Actions (CheckIn, Deposit, Cancel, TriggerRelease) ---
   $("vaultList").addEventListener("click", async (e) => {
     const btn = e.target.closest("[data-act]");
     if (!btn) return;
@@ -1455,26 +1707,26 @@
     busyVaultAction = true;
     const orig = btn.innerHTML;
     btn.disabled = true;
-    btn.textContent = "Signing in Adena...";
+    btn.textContent = "Confirm in Adena...";
     try {
       let res = null;
       if (act === "checkin") {
         res = await callRealm("CheckIn", [String(id)], 0n);
-        if (res) showBanner("ok", `<strong>Checked in to Vault #${escapeHtml(id)}!</strong> Deadline reset.`);
+        if (res) showBanner("ok", `<strong>Checked in to Vault #${escapeHtml(id)}!</strong> Timer reset.`);
       } else if (act === "cancel") {
         res = await callRealm("Cancel", [String(id)], 0n);
-        if (res) showBanner("ok", `<strong>Vault #${escapeHtml(id)} cancelled!</strong> Full balance refunded to Owner.`);
+        if (res) showBanner("ok", `<strong>Vault #${escapeHtml(id)} cancelled.</strong> Balance refunded to Owner.`);
       } else if (act === "release") {
         res = await callRealm("TriggerRelease", [String(id)], 0n);
-        if (res) showBanner("ok", `<strong>Vault #${escapeHtml(id)} released!</strong> 98% sent to Recipient and 2% keeper reward sent to your wallet.`);
+        if (res) showBanner("ok", `<strong>Vault #${escapeHtml(id)} released!</strong> 98% sent to Recipient, 2% keeper fee sent to you.`);
       } else if (act === "deposit") {
         const inp = $(`topupInput-${id}`);
         const amt = parseToUgnot(inp ? inp.value : "", "GNOT");
         if (amt === null || amt <= 0n) {
-          throw new Error("Enter a valid positive GNOT amount (up to 6 decimals) to deposit.");
+          throw new Error("Enter a valid positive GNOT amount (up to 6 decimals).");
         }
         res = await callRealm("Deposit", [String(id)], amt);
-        if (res) showBanner("ok", `<strong>Topped up Vault #${escapeHtml(id)}</strong> with <code>${formatUgnot(amt)}</code>!`);
+        if (res) showBanner("ok", `<strong>Deposited ${formatUgnot(amt)}</strong> into Vault #${escapeHtml(id)}.`);
       }
       if (res) {
         await Promise.all([loadVaults(), refreshBalance(wallet.address)]);
@@ -1489,11 +1741,10 @@
     }
   });
 
-  // --- Tabs, Network & Theme ---
   $("filterTabs").addEventListener("click", (e) => {
-    const tab = e.target.closest(".tab");
+    const tab = e.target.closest(".ftab");
     if (!tab) return;
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    document.querySelectorAll(".ftab").forEach((t) => t.classList.remove("active"));
     tab.classList.add("active");
     currentFilter = tab.dataset.filter;
     renderVaults();
@@ -1502,8 +1753,8 @@
   $("networkSelect").addEventListener("change", async () => {
     currentNetKey = $("networkSelect").value;
     const n = net();
-    $("netBadge").innerHTML = `<span class="dot"></span> ${escapeHtml(n.label)}`;
-    $("gnowebLink").href = `${n.gnoweb}${n.shortPath}`;
+    $("netBadge").innerHTML = `<span class="dot-live"></span> ${escapeHtml(n.label)}`;
+    $("gnowebNavLink").href = `${n.gnoweb}${n.shortPath}`;
     $("realmPathLabel").textContent = n.pkgPath;
     if (wallet.connected) {
       await refreshBalance(wallet.address);
@@ -1515,12 +1766,6 @@
   $("refreshBtn").addEventListener("click", () => loadVaults());
   $("connectBtn").addEventListener("click", connectAdena);
 
-  $("themeBtn").addEventListener("click", () => {
-    const cur = document.documentElement.getAttribute("data-theme");
-    document.documentElement.setAttribute("data-theme", cur === "light" ? "dark" : "light");
-  });
-
-  // Initial boot + periodic background sync
   updatePreview();
   loadVaults();
   setInterval(() => {
