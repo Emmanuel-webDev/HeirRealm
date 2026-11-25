@@ -1,92 +1,1532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HeirRealm — inactivity-triggered release for Gno · Demo</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HeirRealm — Inactivity-Triggered Release on Gno</title>
 <style>
-  :root { color-scheme: light dark; }
-  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; line-height: 1.6; }
-  h1 { font-size: 1.9rem; margin-bottom: .25rem; }
-  h2 { margin-top: 2.5rem; border-top: 1px solid #8884; padding-top: 1.25rem; }
-  .tagline { font-size: 1.15rem; opacity: .85; }
-  .fee { display: inline-block; background: #1a7f37; color: #fff; border-radius: 999px; padding: .15rem .7rem; font-size: .9rem; font-weight: 600; }
-  .flow { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0; }
-  .step { flex: 1 1 140px; border: 1px solid #8884; border-radius: 10px; padding: .8rem; }
-  .step b { display: block; margin-bottom: .3rem; }
-  pre { background: #111; color: #e6edf3; border-radius: 8px; padding: .9rem 1rem; overflow-x: auto; font-size: .85rem; }
-  code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
-  p code, li code { background: #8882; padding: .1rem .35rem; border-radius: 4px; }
-  .result { border-left: 4px solid #1a7f37; padding: .4rem 1rem; background: #1a7f370d; }
-  table { border-collapse: collapse; width: 100%; }
-  th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid #8883; }
-  .note { font-size: .9rem; opacity: .8; }
+  :root {
+    --bg: #0b0f17;
+    --bg-card: #121826;
+    --bg-elev: #1a2234;
+    --bg-input: #0d1320;
+    --border: #253047;
+    --border-focus: #38bdf8;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --accent: #38bdf8;
+    --accent-hover: #0ea5e9;
+    --green: #10b981;
+    --green-bg: rgba(16, 185, 129, 0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245, 158, 11, 0.14);
+    --red: #ef4444;
+    --red-bg: rgba(239, 68, 68, 0.12);
+    --purple: #a78bfa;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  [data-theme="light"] {
+    --bg: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-elev: #f1f5f9;
+    --bg-input: #f8fafc;
+    --border: #e2e8f0;
+    --border-focus: #0284c7;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #64748b;
+    --accent: #0284c7;
+    --accent-hover: #0369a1;
+    --green: #059669;
+    --green-bg: rgba(5, 150, 105, 0.1);
+    --amber: #d97706;
+    --amber-bg: rgba(217, 119, 6, 0.12);
+    --red: #dc2626;
+    --red-bg: rgba(220, 38, 38, 0.1);
+    --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 1.25rem 4rem;
+  }
+
+  /* Header */
+  .topbar {
+    border-bottom: 1px solid var(--border);
+    background: rgba(18, 24, 38, 0.78);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+  [data-theme="light"] .topbar {
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .topbar-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    display: grid;
+    place-items: center;
+    color: #06101a;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: -0.03em;
+  }
+  .brand-name {
+    font-weight: 750;
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+  }
+  .badge-live {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: var(--green-bg);
+    color: var(--green);
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .topbar-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+
+  select, input {
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  select:focus, input:focus {
+    border-color: var(--border-focus);
+  }
+
+  .net-select {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.65rem;
+    background: var(--bg-elev);
+    cursor: pointer;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 0.55rem 0.95rem;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn:hover:not(:disabled) {
+    border-color: var(--text-dim);
+    transform: translateY(-1px);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #04111d;
+    font-weight: 700;
+  }
+  [data-theme="light"] .btn-primary { color: #ffffff; }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+  .btn-keeper {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: #160d00;
+    font-weight: 700;
+  }
+  .btn-keeper:hover:not(:disabled) {
+    filter: brightness(1.07);
+  }
+  .btn-green {
+    background: var(--green-bg);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: var(--green);
+  }
+  .btn-danger {
+    background: var(--red-bg);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: var(--red);
+  }
+  .btn-sm {
+    font-size: 0.8rem;
+    padding: 0.38rem 0.7rem;
+    border-radius: 7px;
+  }
+  .btn-block {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.96rem;
+  }
+
+  .wallet-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 0.38rem 0.7rem;
+    font-size: 0.82rem;
+  }
+  .wallet-addr {
+    font-family: var(--mono);
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .wallet-bal {
+    font-weight: 600;
+    color: var(--text);
+    padding-left: 0.5rem;
+    border-left: 1px solid var(--border);
+  }
+
+  /* Hero */
+  .hero {
+    padding: 2rem 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .hero h1 {
+    margin: 0 0 0.45rem;
+    font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+  .hero p {
+    margin: 0;
+    color: var(--text-muted);
+    max-width: 680px;
+    font-size: 1rem;
+  }
+  .hero-pills {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .split-pill {
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 650;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  /* Alerts / Banners */
+  .banner {
+    margin: 0 0 1.25rem;
+    padding: 0.85rem 1rem;
+    border-radius: 11px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+  }
+  .banner.show { display: flex; }
+  .banner-warn {
+    border-color: rgba(245, 158, 11, 0.45);
+    background: var(--amber-bg);
+  }
+  .banner-err {
+    border-color: rgba(239, 68, 68, 0.45);
+    background: var(--red-bg);
+  }
+  .banner-ok {
+    border-color: rgba(16, 185, 129, 0.45);
+    background: var(--green-bg);
+  }
+
+  /* Grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 430px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 940px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.35rem;
+    box-shadow: var(--shadow);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+  .card-title {
+    margin: 0;
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Presets */
+  .preset-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    margin-bottom: 0.45rem;
+    display: block;
+  }
+  .presets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.45rem;
+    margin-bottom: 0.6rem;
+  }
+  .preset-btn {
+    text-align: left;
+    padding: 0.5rem 0.65rem;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    transition: all 0.14s;
+  }
+  .preset-btn b {
+    display: block;
+    font-size: 0.83rem;
+    margin-bottom: 0.08rem;
+  }
+  .preset-btn span {
+    font-size: 0.73rem;
+    color: var(--text-muted);
+  }
+  .preset-btn:hover { border-color: var(--text-dim); }
+  .preset-btn.active {
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.1);
+  }
+  .preset-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    background: var(--bg-elev);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+    margin-bottom: 1rem;
+    border-left: 3px solid var(--accent);
+  }
+
+  /* Form fields */
+  .field { margin-bottom: 0.95rem; }
+  .field-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.35rem;
+    font-size: 0.84rem;
+  }
+  .field-top label { font-weight: 600; }
+  .field-hint {
+    font-size: 0.76rem;
+    color: var(--accent);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+  }
+  .field-hint:hover { text-decoration: underline; }
+  .field input, .field select { width: 100%; }
+  .mono-input { font-family: var(--mono); font-size: 0.83rem; }
+
+  .amount-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.45rem;
+  }
+  .chips {
+    display: flex;
+    gap: 0.38rem;
+    margin-top: 0.42rem;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 0.74rem;
+    padding: 0.2rem 0.52rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chip:hover { color: var(--text); border-color: var(--text-dim); }
+
+  .split-preview {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.7rem 0.85rem;
+    margin-bottom: 1rem;
+    font-size: 0.82rem;
+  }
+  .split-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.18rem 0;
+  }
+  .split-row span:first-child { color: var(--text-muted); }
+  .split-row strong { font-family: var(--mono); font-size: 0.81rem; }
+
+  .form-err {
+    color: var(--red);
+    font-size: 0.82rem;
+    margin-bottom: 0.75rem;
+    display: none;
+  }
+  .form-err.show { display: block; }
+
+  /* Vaults Board */
+  .tabs {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .tab {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.38rem 0.72rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .tab.active {
+    background: var(--bg-elev);
+    color: var(--text);
+    border-color: var(--text-dim);
+  }
+
+  .vault-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .vault-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    transition: border-color 0.15s;
+  }
+  .vault-card.claimable {
+    border-color: rgba(245, 158, 11, 0.55);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15);
+  }
+  .vault-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.65rem;
+  }
+  .vault-id {
+    font-weight: 750;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .status-pill {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+  }
+  .st-active { background: var(--green-bg); color: var(--green); }
+  .st-claimable { background: var(--amber-bg); color: var(--amber); }
+  .st-released { background: rgba(56, 189, 248, 0.14); color: var(--accent); }
+  .st-cancelled { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+  .countdown-box {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 0.45rem 0.7rem;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .countdown-time.expired { color: var(--amber); }
+  .countdown-time.active { color: var(--green); }
+
+  .vault-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem 1rem;
+    font-size: 0.82rem;
+    margin-bottom: 0.8rem;
+  }
+  @media (max-width: 560px) {
+    .vault-meta { grid-template-columns: 1fr; }
+  }
+  .meta-item span {
+    display: block;
+    font-size: 0.73rem;
+    color: var(--text-dim);
+  }
+  .meta-item code {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+  .you-tag {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.05rem 0.38rem;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.18);
+    color: var(--accent);
+    margin-left: 0.3rem;
+  }
+
+  .vault-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--border);
+  }
+  .guard-note {
+    font-size: 0.77rem;
+    color: var(--text-muted);
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+  .topup-inline {
+    display: none;
+    width: 100%;
+    gap: 0.45rem;
+    margin-top: 0.45rem;
+  }
+  .topup-inline.show { display: flex; }
+
+  .empty-state {
+    text-align: center;
+    padding: 2.2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .footer {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+  .footer-links { display: flex; gap: 1rem; flex-wrap: wrap; }
 </style>
 </head>
 <body>
 
-<h1>HeirRealm — inactivity-triggered release for Gno</h1>
-<p class="tagline">If you go quiet, your funds move to who should have them — not to a custodian, not into the void.</p>
-<p><span class="fee">Keeper fee: 2%</span> &nbsp; <span class="fee" style="background:#0969da">Recipient: 98%</span></p>
-<p><strong>Live on Onyx (<code>onyx-1</code>):</strong> <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm">onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm</a></p>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">HR</div>
+      <div>
+        <span class="brand-name">HeirRealm</span>
+      </div>
+      <span class="badge badge-live" id="netBadge"><span class="dot"></span> Onyx Testnet</span>
+    </div>
 
-<div class="flow">
-  <div class="step"><b>1 · Lock &amp; Name</b> Alice names Bob as recipient, sets a 60-second check-in window, funds the vault with 1,000 ugnot.</div>
-  <div class="step"><b>2 · Check in</b> Alice checks in. The deadline moves forward. Nothing happens — that's the point.</div>
-  <div class="step"><b>3 · Go quiet</b> Alice stops checking in. The deadline passes. The funds are now claimable.</div>
-  <div class="step"><b>4 · Keeper triggers</b> Carol, a stranger, calls <code>TriggerRelease</code>. Bob gets 98%, Carol earns 2%.</div>
+    <div class="topbar-controls">
+      <select id="networkSelect" class="net-select" aria-label="Select Gno network">
+        <option value="onyx">Onyx Testnet (onyx-1)</option>
+        <option value="local">Local gnodev (dev)</option>
+      </select>
+      <a id="gnowebLink" class="btn btn-sm" href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">
+        Verify on GnoWeb &#8599;
+      </a>
+      <button class="btn btn-sm" id="themeBtn" type="button" title="Toggle dark/light theme">Theme</button>
+      <div id="walletArea">
+        <button class="btn btn-primary" id="connectBtn" type="button">Connect Adena</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <section class="hero">
+    <div>
+      <h1>Inactivity-triggered release for Gno.</h1>
+      <p>Lock funds, name who should receive them, and set a check-in window. Check in and nothing happens. Go quiet, and any stranger can trigger the release — paid 2% to move 98% to your recipient.</p>
+    </div>
+    <div class="hero-pills">
+      <span class="split-pill" style="color:var(--accent)">98% &rarr; Recipient</span>
+      <span class="split-pill" style="color:var(--amber)">2% &rarr; Keeper</span>
+      <span class="split-pill" style="color:var(--green)">0 Custodians</span>
+    </div>
+  </section>
+
+  <!-- Status / Error / Network Banners -->
+  <div class="banner banner-err" id="adenaMissingBanner">
+    <div>
+      <strong>Adena Wallet not detected.</strong> Install the Adena Chrome/Brave extension to sign transactions (if opening as a local file, serve via <code>http://localhost</code> or GitHub Pages so extensions can inject <code>window.adena</code>).
+    </div>
+    <a class="btn btn-sm btn-primary" href="https://adena.app/" target="_blank" rel="noopener">Get Adena Wallet &#8599;</a>
+  </div>
+
+  <div class="banner banner-warn" id="wrongNetBanner">
+    <div id="wrongNetText">Your Adena wallet is connected to a different network.</div>
+    <button class="btn btn-sm btn-keeper" id="switchNetBtn" type="button">Switch Adena Network</button>
+  </div>
+
+  <div class="banner" id="txBanner">
+    <div id="txBannerText"></div>
+    <button class="btn btn-sm" type="button" onclick="document.getElementById('txBanner').classList.remove('show')">Dismiss</button>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT: CREATE VAULT -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Create a Vault</h2>
+        <span class="badge">Gas limit: 8M</span>
+      </div>
+
+      <span class="preset-label">Use-Case Preset</span>
+      <div class="presets" id="presetGrid">
+        <button type="button" class="preset-btn active" data-preset="inheritance" data-sec="7776000">
+          <b>1 &middot; Inheritance</b>
+          <span>90-day check-in</span>
+        </button>
+        <button type="button" class="preset-btn" data-preset="dao" data-sec="2592000">
+          <b>2 &middot; DAO Treasury</b>
+          <span>30-day succession</span>
+        </button>
+        <button type="button" class="preset-btn" data-preset="escrow" data-sec="2592000">
+          <b>3 &middot; Freelancer Escrow</b>
+          <span>30-day client window</span>
+        </button>
+        <button type="button" class="preset-btn" data-preset="gift" data-sec="31536000">
+          <b>4 &middot; Time-Locked Gift</b>
+          <span>365-day trust</span>
+        </button>
+        <button type="button" class="preset-btn" data-preset="dormant" data-sec="15552000">
+          <b>5 &middot; Dormant Funds</b>
+          <span>180-day return</span>
+        </button>
+        <button type="button" class="preset-btn" data-preset="demo" data-sec="60">
+          <b>&#9889; 60s Live Demo</b>
+          <span>Expires in 1 min</span>
+        </button>
+      </div>
+      <div class="preset-desc" id="presetDesc">
+        <strong>Inheritance:</strong> Name a family member as recipient. If you lose your keys or pass away, funds release after 90 days of inactivity — no lawyer or shared seed phrase.
+      </div>
+
+      <form id="createForm" novalidate>
+        <div class="field">
+          <div class="field-top">
+            <label for="beneficiaryInput">Recipient Address (<code>g1...</code>)</label>
+            <button type="button" class="field-hint" id="fillDemoAddrBtn">Use demo recipient</button>
+          </div>
+          <input id="beneficiaryInput" class="mono-input" type="text" placeholder="g1..." autocomplete="off" spellcheck="false" required />
+        </div>
+
+        <div class="field">
+          <div class="field-top">
+            <label for="amountInput">Initial Deposit</label>
+            <span style="font-size:0.75rem;color:var(--text-dim)">1 GNOT = 1,000,000 ugnot</span>
+          </div>
+          <div class="amount-row">
+            <input id="amountInput" type="text" inputmode="decimal" value="0.01" placeholder="0.01" required />
+            <select id="unitSelect" aria-label="Token unit" style="width:auto">
+              <option value="GNOT" selected>GNOT</option>
+              <option value="ugnot">ugnot</option>
+            </select>
+          </div>
+          <div class="chips">
+            <button type="button" class="chip" data-amt="0.01" data-unit="GNOT">0.01 GNOT</button>
+            <button type="button" class="chip" data-amt="0.1" data-unit="GNOT">0.1 GNOT</button>
+            <button type="button" class="chip" data-amt="1" data-unit="GNOT">1 GNOT</button>
+            <button type="button" class="chip" data-amt="1000" data-unit="ugnot">1,000 ugnot</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-top">
+            <label for="intervalSelect">Check-in Window</label>
+            <span id="intervalSecLabel" style="font-family:var(--mono);font-size:0.76rem;color:var(--text-dim)">7,776,000s</span>
+          </div>
+          <select id="intervalSelect">
+            <option value="60">60 seconds (minimum — fast demo)</option>
+            <option value="300">5 minutes (300s)</option>
+            <option value="3600">1 hour (3,600s)</option>
+            <option value="86400">24 hours (86,400s)</option>
+            <option value="604800">7 days</option>
+            <option value="2592000">30 days</option>
+            <option value="7776000" selected>90 days</option>
+            <option value="15552000">180 days</option>
+            <option value="31536000">365 days (maximum)</option>
+            <option value="custom">Custom seconds...</option>
+          </select>
+          <input id="customIntervalInput" type="number" min="60" max="31536000" step="1" value="60" placeholder="Seconds (60 - 31536000)" style="margin-top:0.45rem;display:none" />
+        </div>
+
+        <div class="split-preview">
+          <div class="split-row">
+            <span>Attached <code>-send</code></span>
+            <strong id="prevTotal">10,000 ugnot (0.01 GNOT)</strong>
+          </div>
+          <div class="split-row">
+            <span>Recipient receives (98%)</span>
+            <strong id="prevBen" style="color:var(--accent)">9,800 ugnot (0.0098 GNOT)</strong>
+          </div>
+          <div class="split-row">
+            <span>Keeper reward (2%)</span>
+            <strong id="prevKeeper" style="color:var(--amber)">200 ugnot (0.0002 GNOT)</strong>
+          </div>
+        </div>
+
+        <div class="form-err" id="formErr"></div>
+
+        <button class="btn btn-primary btn-block" id="createSubmitBtn" type="submit">
+          Lock Funds &amp; Create Vault
+        </button>
+      </form>
+    </section>
+
+    <!-- RIGHT: LIVE VAULTS & KEEPER BOARD -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Live On-Chain Vaults</h2>
+          <div style="font-size:0.78rem;color:var(--text-dim)" id="realmPathLabel">gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm</div>
+        </div>
+        <button class="btn btn-sm" id="refreshBtn" type="button">&#8635; Refresh</button>
+      </div>
+
+      <div class="tabs" id="filterTabs">
+        <button type="button" class="tab active" data-filter="all">All (<span id="countAll">0</span>)</button>
+        <button type="button" class="tab" data-filter="claimable">Claimable by Keepers (<span id="countClaimable">0</span>)</button>
+        <button type="button" class="tab" data-filter="mine">My Vaults (<span id="countMine">0</span>)</button>
+        <button type="button" class="tab" data-filter="released">Released (<span id="countReleased">0</span>)</button>
+      </div>
+
+      <div id="vaultList" class="vault-list">
+        <div class="empty-state">Loading live vaults from Onyx RPC...</div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <div>
+      HeirRealm &middot; Built for the Gno.land Gnome Tavern Hackathon &middot; Non-custodial, 98/2 keeper incentive, no backend.
+    </div>
+    <div class="footer-links">
+      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">Onyx Realm</a>
+      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm$source" target="_blank" rel="noopener">On-Chain Source</a>
+      <a href="https://github.com/Emmanuel-webDev/HeirRealm" target="_blank" rel="noopener">GitHub Repo</a>
+      <a href="https://faucet.gno.land" target="_blank" rel="noopener">Onyx Faucet</a>
+    </div>
+  </footer>
 </div>
 
-<h2>One primitive, five use cases</h2>
-<ol>
-  <li><strong>Inheritance:</strong> Holder dies or loses keys &rarr; family receives the funds after the check-in window, with no lawyer or shared seed phrase.</li>
-  <li><strong>DAO / project treasury succession:</strong> Maintainer disappears &rarr; treasury moves automatically to a successor or community wallet.</li>
-  <li><strong>Freelancer / bounty escrow:</strong> Client funds a vault for a freelancer and checks in while work continues; if the client vanishes, the freelancer still gets paid 98%.</li>
-  <li><strong>Time-locked gift / trust:</strong> Parent locks funds for a child and checks in while active — moves only when the parent goes quiet.</li>
-  <li><strong>Dormant / unclaimed funds:</strong> Team or project funds return to a community wallet after a year of inactivity instead of sitting dead forever.</li>
-</ol>
+<script>
+(() => {
+  const NETWORKS = {
+    onyx: {
+      label: "Onyx Testnet",
+      chainId: "onyx-1",
+      rpc: "https://rpc.onyx.testnets.gno.land",
+      gnoweb: "https://onyx.testnets.gno.land",
+      pkgPath: "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
+      shortPath: "/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
+      gasFee: 20000,      // 0.02 GNOT (20,000 ugnot) covers 8M gas + min-gas-prices comfortably
+      gasWanted: 8000000  // Measured: CreateVault ~4.6M, TriggerRelease ~5.3M
+    },
+    local: {
+      label: "Local gnodev",
+      chainId: "dev",
+      rpc: "http://127.0.0.1:26657",
+      gnoweb: "http://localhost:8888",
+      pkgPath: "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
+      shortPath: "/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
+      gasFee: 8000,
+      gasWanted: 8000000
+    }
+  };
 
-<h2>The 60-second demo</h2>
-<p>Run locally with <code>gnodev</code>. Full commands and real outputs: <code>DEMO.md</code>. Verified live on a local chain:</p>
+  const PRESET_COPY = {
+    inheritance: "<strong>Inheritance:</strong> Name a family member as recipient. If you lose your keys or pass away, funds release after 90 days of inactivity — no lawyer or shared seed phrase.",
+    dao: "<strong>DAO / Project Treasury Succession:</strong> Name a successor or multisig/community wallet. If the maintainer disappears for 30 days, the treasury moves automatically instead of dying with them.",
+    escrow: "<strong>Freelancer / Bounty Escrow:</strong> Client locks payment naming the freelancer as recipient and checks in while work continues. If the client vanishes, the freelancer still gets paid 98%.",
+    gift: "<strong>Time-Locked Gift / Trust:</strong> Lock funds for a child or family member while staying active. Moves only when you stop checking in — never a paper seed phrase.",
+    dormant: "<strong>Dormant / Unclaimed Funds:</strong> Project or team funds return to a community wallet after 180 days of inactivity rather than sitting dead forever.",
+    demo: "<strong>60-Second Live Demo:</strong> Fastest allowed check-in window (60s). Create a vault, watch the live countdown hit zero, and let any keeper claim 2% to release 98%."
+  };
 
-<pre><code>$ gnokey maketx call -func CreateVault -args &lt;bob&gt; -args 60 -send 1000ugnot alice
-OK!  (1 int)                                  # vault #1 created
-# gnoweb: Vault #1 — active — balance 1000 ugnot — deadline 11:21:59Z
+  const DEMO_RECIPIENT = "g1y5lxm4jqzcu9djpgvxeqypag2hszwcdh422fyw";
+  const MIN_INTERVAL = 60;
+  const MAX_INTERVAL = 365 * 24 * 60 * 60; // 31,536,000
 
-$ gnokey maketx call -func CheckIn -args 1 alice
-OK!                                            # deadline moves to 11:22:31Z
+  let currentNetKey = "onyx";
+  let wallet = { connected: false, address: "", chainId: "", balanceUgnot: 0n };
+  let vaults = [];
+  let currentFilter = "all";
+  let busyVaultAction = false;
 
-... 65 seconds pass, Alice goes quiet ...
+  const $ = (id) => document.getElementById(id);
+  const net = () => NETWORKS[currentNetKey];
 
-$ gnokey maketx call -func TriggerRelease -args 1 carol
-OK!  (1078 int64)  (22 int64)                 # 1,100 × 98% / 2%
-# events: 1078ugnot → bob (recipient), 22ugnot → carol (keeper)
+  // --- Exact GNOT <-> ugnot BigInt Math (1 GNOT = 1,000,000 ugnot) ---
+  function parseToUgnot(rawStr, unit) {
+    const s = String(rawStr || "").trim().replace(/,/g, "");
+    if (!s) return null;
+    if (unit === "ugnot") {
+      if (!/^\d+$/.test(s)) return null;
+      return BigInt(s);
+    }
+    // unit === "GNOT" -> up to 6 decimal places
+    if (!/^\d+(\.\d{1,6})?$/.test(s)) return null;
+    const [whole, frac = ""] = s.split(".");
+    const fracPadded = (frac + "000000").slice(0, 6);
+    return BigInt(whole) * 1000000n + BigInt(fracPadded);
+  }
 
-$ curl http://localhost:8888/r/.../heirrealm
-Vault #1 — released — balance 1100 ugnot</code></pre>
+  function formatGnot(ugnotBig) {
+    const b = BigInt(ugnotBig);
+    const whole = b / 1000000n;
+    const frac = (b % 1000000n).toString().padStart(6, "0").replace(/0+$/, "");
+    return frac ? `${whole.toLocaleString()}.${frac} GNOT` : `${whole.toLocaleString()} GNOT`;
+  }
 
-<div class="result">
-<p><strong>Verified split:</strong> the vault held 1,100 ugnot after a 100 ugnot top-up. Bob received <strong>1,078 ugnot (98%)</strong> and Carol the keeper received <strong>22 ugnot (2%)</strong> — confirmed in the transaction events and in both final balances.</p>
-</div>
+  function formatUgnot(ugnotBig) {
+    return `${BigInt(ugnotBig).toLocaleString()} ugnot`;
+  }
 
-<h2>What the keeper can and cannot do</h2>
-<table>
-  <tr><th>Action</th><th>Allowed?</th></tr>
-  <tr><td>Release before the deadline</td><td>No — the call aborts</td></tr>
-  <tr><td>Redirect funds to themselves</td><td>No — funds go only to the named recipient</td></tr>
-  <tr><td>Be the owner or the recipient</td><td>No — the realm rejects both (and owner != recipient at creation)</td></tr>
-  <tr><td>Release twice</td><td>No — a released vault is closed forever</td></tr>
-  <tr><td>Trigger the release after expiry</td><td>Yes — and earn 2% for it</td></tr>
-</table>
+  function shortAddr(addr) {
+    if (!addr || addr.length < 16) return addr || "—";
+    return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
+  }
 
-<h2>Try it yourself</h2>
-<ol>
-  <li>Install Go + the Gno toolchain (v1.8.0) — see <code>README.md</code>.</li>
-  <li><code>cd r/heirrealm &amp;&amp; gno test -v ./...</code> — 9 tests, all passing.</li>
-  <li><code>gnodev .</code> — then follow <code>DEMO.md</code> step by step.</li>
-</ol>
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
 
-<p class="note">HeirRealm is a Gnome Tavern Hackathon entry (Gno.land, submissions close Dec 18, 2026). Recurring payments, multi-beneficiary splits, and social / voice recovery are planned future extensions, deliberately not in this MVP.</p>
+  // --- Encoding helpers for Tendermint / Gno RPC abci_query ---
+  function utf8ToHex(str) {
+    const bytes = new TextEncoder().encode(str);
+    let hex = "0x";
+    for (const b of bytes) hex += b.toString(16).padStart(2, "0");
+    return hex;
+  }
 
+  function base64ToUtf8(b64) {
+    if (!b64) return "";
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  async function abciQuery(path, dataStr = "") {
+    const url = `${net().rpc}/abci_query?path=${encodeURIComponent(`"${path}"`)}&data=${utf8ToHex(dataStr)}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`RPC HTTP ${res.status}`);
+    const json = await res.json();
+    const resp = json?.result?.response?.ResponseBase || json?.result?.response;
+    if (resp?.Error) {
+      throw new Error(resp.Log || JSON.stringify(resp.Error));
+    }
+    return base64ToUtf8(resp?.Data || "");
+  }
+
+  // --- Banner helpers ---
+  function showBanner(type, html) {
+    const el = $("txBanner");
+    el.className = `banner show ${type === "err" ? "banner-err" : type === "warn" ? "banner-warn" : "banner-ok"}`;
+    $("txBannerText").innerHTML = html;
+  }
+
+  // --- Parse Vaults from live Render("") and Render("<id>") ---
+  function parseDetailMarkdown(id, md) {
+    const get = (label) => {
+      const m = md.match(new RegExp(`^- ${label}:\\s*(.+)$`, "m"));
+      return m ? m[1].trim() : "";
+    };
+    const statusRaw = get("Status");
+    const owner = get("Owner");
+    const beneficiary = get("Beneficiary");
+    const balMatch = get("Balance").match(/^(\d+)/);
+    const intMatch = get("Check-in interval").match(/^(\d+)/);
+    const deadlineStr = get("Deadline");
+    const relLine = get("Released by keeper");
+    let keeper = "", releasedAt = "";
+    if (relLine) {
+      const rm = relLine.match(/^(\S+)\s+at\s+(\S+)/);
+      if (rm) { keeper = rm[1]; releasedAt = rm[2]; }
+    }
+    const balance = balMatch ? BigInt(balMatch[1]) : 0n;
+    const keeperFee = (balance * 200n) / 10000n;
+    const beneficiaryShare = balance - keeperFee;
+    const deadlineMs = deadlineStr ? Date.parse(deadlineStr) : 0;
+
+    return {
+      id: Number(id),
+      statusRaw,
+      released: statusRaw === "released",
+      cancelled: statusRaw === "cancelled",
+      owner,
+      beneficiary,
+      balance,
+      interval: intMatch ? Number(intMatch[1]) : 0,
+      deadlineStr,
+      deadlineMs,
+      keeperFee,
+      beneficiaryShare,
+      keeper,
+      releasedAt
+    };
+  }
+
+  async function loadVaults() {
+    const listEl = $("vaultList");
+    try {
+      const homeMd = await abciQuery("vm/qrender", `${net().pkgPath}:`);
+      const idMatches = [...homeMd.matchAll(/^- Vault #(\d+)\b/gm)];
+      if (idMatches.length === 0) {
+        vaults = [];
+        renderVaults();
+        return;
+      }
+      const ids = idMatches.map((m) => Number(m[1]));
+      const details = await Promise.all(
+        ids.map(async (id) => {
+          const md = await abciQuery("vm/qrender", `${net().pkgPath}:${id}`);
+          return parseDetailMarkdown(id, md);
+        })
+      );
+      // Show newest / most actionable first (claimable -> active -> released)
+      vaults = details.sort((a, b) => b.id - a.id);
+      renderVaults();
+    } catch (err) {
+      listEl.innerHTML = `<div class="empty-state">Could not reach ${escapeHtml(net().label)} RPC (<code>${escapeHtml(net().rpc)}</code>):<br>${escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  function isVaultExpiredNow(v) {
+    if (v.released || v.cancelled) return false;
+    return v.statusRaw.startsWith("expired") || (v.deadlineMs > 0 && Date.now() > v.deadlineMs);
+  }
+
+  function formatDuration(ms) {
+    const totalSec = Math.max(0, Math.floor(Math.abs(ms) / 1000));
+    const d = Math.floor(totalSec / 86400);
+    const h = Math.floor((totalSec % 86400) / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    const parts = [];
+    if (d > 0) parts.push(`${d}d`);
+    if (h > 0 || d > 0) parts.push(`${h}h`);
+    parts.push(`${String(m).padStart(2, "0")}m`);
+    parts.push(`${String(s).padStart(2, "0")}s`);
+    return parts.join(" ");
+  }
+
+  function renderVaults() {
+    const now = Date.now();
+    const myAddr = wallet.address;
+
+    const countClaimable = vaults.filter((v) => isVaultExpiredNow(v)).length;
+    const countMine = vaults.filter((v) => myAddr && (v.owner === myAddr || v.beneficiary === myAddr)).length;
+    const countReleased = vaults.filter((v) => v.released).length;
+
+    $("countAll").textContent = String(vaults.length);
+    $("countClaimable").textContent = String(countClaimable);
+    $("countMine").textContent = String(countMine);
+    $("countReleased").textContent = String(countReleased);
+
+    const filtered = vaults.filter((v) => {
+      if (currentFilter === "claimable") return isVaultExpiredNow(v);
+      if (currentFilter === "mine") return myAddr && (v.owner === myAddr || v.beneficiary === myAddr);
+      if (currentFilter === "released") return v.released;
+      return true;
+    });
+
+    const listEl = $("vaultList");
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div class="empty-state">${
+        vaults.length === 0
+          ? "No vaults on this network yet. Create Vault #1 on the left!"
+          : "No vaults match this filter."
+      }</div>`;
+      return;
+    }
+
+    listEl.innerHTML = filtered.map((v) => {
+      const expired = isVaultExpiredNow(v);
+      let stClass = "st-active", stLabel = "Active";
+      if (v.released) { stClass = "st-released"; stLabel = "Released"; }
+      else if (v.cancelled) { stClass = "st-cancelled"; stLabel = "Cancelled"; }
+      else if (expired) { stClass = "st-claimable"; stLabel = "Expired — Claimable"; }
+
+      const isOwner = myAddr && v.owner === myAddr;
+      const isBen = myAddr && v.beneficiary === myAddr;
+
+      let countdownHtml = "";
+      if (v.released) {
+        countdownHtml = `<span>Released by keeper <code>${escapeHtml(shortAddr(v.keeper))}</code></span><span style="color:var(--text-dim)">${escapeHtml(v.releasedAt)}</span>`;
+      } else if (v.cancelled) {
+        countdownHtml = `<span>Cancelled &amp; refunded to owner</span><span style="color:var(--text-dim)">Closed</span>`;
+      } else {
+        const diff = v.deadlineMs - now;
+        countdownHtml = diff <= 0
+          ? `<span class="countdown-time expired" data-deadline="${v.deadlineMs}">&#9889; Expired ${formatDuration(diff)} ago — Ready for Keeper</span><span style="color:var(--text-dim);font-size:0.76rem">${escapeHtml(v.deadlineStr)}</span>`
+          : `<span class="countdown-time active" data-deadline="${v.deadlineMs}">&#9201; ${formatDuration(diff)} remaining</span><span style="color:var(--text-dim);font-size:0.76rem">${escapeHtml(v.deadlineStr)}</span>`;
+      }
+
+      let actionsHtml = "";
+      if (!v.released && !v.cancelled) {
+        if (expired) {
+          const blockedKeeper = isOwner || isBen;
+          actionsHtml = `
+            <button type="button" class="btn btn-keeper btn-sm" data-act="release" data-id="${v.id}" ${blockedKeeper || busyVaultAction ? "disabled" : ""}>
+              &#9889; Trigger Release &mdash; Earn ${formatUgnot(v.keeperFee)} (2%)
+            </button>
+            ${blockedKeeper
+              ? `<div class="guard-note">On-chain guard: you are the ${isOwner ? "Owner" : "Recipient"} of Vault #${v.id}. Switch to any third Adena wallet to claim the 2% keeper reward.</div>`
+              : `<div class="guard-note">Any stranger wallet (not Owner or Recipient) can execute this release and earn 2% atomically.</div>`
+            }
+          `;
+        } else if (isOwner) {
+          actionsHtml = `
+            <button type="button" class="btn btn-green btn-sm" data-act="checkin" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+              &#10003; Check In (Reset Timer)
+            </button>
+            <button type="button" class="btn btn-sm" data-act="toggle-topup" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+              + Top Up
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" data-act="cancel" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+              &#10005; Cancel &amp; Refund
+            </button>
+            <div class="topup-inline" id="topupBox-${v.id}">
+              <input type="text" id="topupInput-${v.id}" placeholder="Amount in GNOT (e.g. 0.01)" value="0.01" style="flex:1" />
+              <button type="button" class="btn btn-primary btn-sm" data-act="deposit" data-id="${v.id}">Send Deposit</button>
+            </div>
+          `;
+        } else {
+          actionsHtml = `<div class="guard-note">Active timer (${v.interval.toLocaleString()}s window). Connect as Owner (<code>${escapeHtml(shortAddr(v.owner))}</code>) to Check In, Top Up, or Cancel.</div>`;
+        }
+      }
+
+      const detailUrl = `${net().gnoweb}${net().shortPath}:${v.id}`;
+
+      return `
+        <article class="vault-card ${expired ? "claimable" : ""}">
+          <div class="vault-top">
+            <div class="vault-id">
+              <span>Vault #${v.id}</span>
+              <span class="status-pill ${stClass}">${stLabel}</span>
+            </div>
+            <a href="${escapeHtml(detailUrl)}" target="_blank" rel="noopener" style="font-size:0.78rem">GnoWeb #${v.id} &#8599;</a>
+          </div>
+
+          <div class="countdown-box">${countdownHtml}</div>
+
+          <div class="vault-meta">
+            <div class="meta-item">
+              <span>Owner</span>
+              <code title="${escapeHtml(v.owner)}">${escapeHtml(shortAddr(v.owner))}</code>${isOwner ? '<b class="you-tag">YOU</b>' : ""}
+            </div>
+            <div class="meta-item">
+              <span>Recipient (98%)</span>
+              <code title="${escapeHtml(v.beneficiary)}">${escapeHtml(shortAddr(v.beneficiary))}</code>${isBen ? '<b class="you-tag">YOU</b>' : ""}
+            </div>
+            <div class="meta-item">
+              <span>Vault Balance</span>
+              <code>${formatGnot(v.balance)} (${formatUgnot(v.balance)})</code>
+            </div>
+            <div class="meta-item">
+              <span>Release Split (98% / 2%)</span>
+              <code>${formatUgnot(v.beneficiaryShare)} / ${formatUgnot(v.keeperFee)}</code>
+            </div>
+          </div>
+
+          ${actionsHtml ? `<div class="vault-actions">${actionsHtml}</div>` : ""}
+        </article>
+      `;
+    }).join("");
+  }
+
+  // Live 1s countdown ticker without re-rendering DOM inputs
+  setInterval(() => {
+    const now = Date.now();
+    let needsRerender = false;
+    document.querySelectorAll("[data-deadline]").forEach((el) => {
+      const dl = Number(el.getAttribute("data-deadline"));
+      if (!dl) return;
+      const diff = dl - now;
+      const wasExpired = el.classList.contains("expired");
+      if (diff <= 0 && !wasExpired) {
+        needsRerender = true;
+      } else if (diff <= 0) {
+        el.innerHTML = `&#9889; Expired ${formatDuration(diff)} ago — Ready for Keeper`;
+      } else {
+        el.innerHTML = `&#9201; ${formatDuration(diff)} remaining`;
+      }
+    });
+    if (needsRerender) renderVaults();
+  }, 1000);
+
+  // --- Adena Wallet Integration ---
+  async function refreshBalance(addr) {
+    if (!addr) return;
+    try {
+      const raw = await abciQuery(`bank/balances/${addr}`, "");
+      const m = raw.match(/(\d+)ugnot/);
+      wallet.balanceUgnot = m ? BigInt(m[1]) : 0n;
+    } catch {
+      // keep existing
+    }
+  }
+
+  function updateWalletUI() {
+    const area = $("walletArea");
+    const wrongBanner = $("wrongNetBanner");
+    if (!wallet.connected) {
+      area.innerHTML = `<button class="btn btn-primary" id="connectBtn" type="button">Connect Adena</button>`;
+      $("connectBtn").addEventListener("click", connectAdena);
+      wrongBanner.classList.remove("show");
+      return;
+    }
+
+    area.innerHTML = `
+      <div class="wallet-pill">
+        <span class="wallet-addr" id="copyAddrSpan" title="Click to copy ${escapeHtml(wallet.address)}">${escapeHtml(shortAddr(wallet.address))}</span>
+        <span class="wallet-bal">${formatGnot(wallet.balanceUgnot)}</span>
+      </div>
+    `;
+    $("copyAddrSpan").addEventListener("click", () => {
+      navigator.clipboard?.writeText(wallet.address);
+      showBanner("ok", `Copied wallet address: <code>${escapeHtml(wallet.address)}</code>`);
+    });
+
+    if (wallet.chainId && wallet.chainId !== net().chainId) {
+      $("wrongNetText").innerHTML = `Adena is currently on <code>${escapeHtml(wallet.chainId)}</code>, while this view targets <strong>${escapeHtml(net().label)} (<code>${escapeHtml(net().chainId)}</code>)</strong>.`;
+      wrongBanner.classList.add("show");
+    } else {
+      wrongBanner.classList.remove("show");
+    }
+  }
+
+  async function connectAdena() {
+    if (!window.adena) {
+      $("adenaMissingBanner").classList.add("show");
+      return false;
+    }
+    $("adenaMissingBanner").classList.remove("show");
+    try {
+      await window.adena.AddEstablish("HeirRealm");
+      const acct = await window.adena.GetAccount();
+      if (!acct?.data?.address) {
+        throw new Error(acct?.message || "Could not read Adena account. Unlock Adena and try again.");
+      }
+      wallet.connected = true;
+      wallet.address = acct.data.address;
+      wallet.chainId = acct.data.chainId || "";
+      const coinMatch = String(acct.data.coins || "").match(/(\d+)ugnot/);
+      wallet.balanceUgnot = coinMatch ? BigInt(coinMatch[1]) : 0n;
+      await refreshBalance(wallet.address);
+      updateWalletUI();
+      renderVaults();
+
+      if (window.adena.On) {
+        window.adena.On("changedAccount", () => connectAdena());
+        window.adena.On("changedNetwork", () => connectAdena());
+      }
+      return true;
+    } catch (err) {
+      showBanner("err", `<strong>Wallet connection error:</strong> ${escapeHtml(err.message || String(err))}`);
+      return false;
+    }
+  }
+
+  $("switchNetBtn").addEventListener("click", async () => {
+    if (!window.adena) return;
+    try {
+      const target = net();
+      const res = await window.adena.SwitchNetwork(target.chainId);
+      if (res && res.code && res.code !== 0 && window.adena.AddNetwork) {
+        await window.adena.AddNetwork({
+          chainId: target.chainId,
+          chainName: target.label,
+          rpcUrl: target.rpc
+        });
+        await window.adena.SwitchNetwork(target.chainId);
+      }
+      await connectAdena();
+    } catch (err) {
+      showBanner("err", `Could not switch network automatically: ${escapeHtml(err.message || String(err))}. Switch to <code>${escapeHtml(net().chainId)}</code> inside Adena.`);
+    }
+  });
+
+  async function callRealm(funcName, argsArray, sendUgnotBig = 0n) {
+    if (!wallet.connected) {
+      const ok = await connectAdena();
+      if (!ok) return null;
+    }
+    if (!window.adena) {
+      $("adenaMissingBanner").classList.add("show");
+      return null;
+    }
+    if (wallet.chainId && wallet.chainId !== net().chainId) {
+      showBanner("warn", `Please switch Adena to <code>${escapeHtml(net().chainId)}</code> before signing.`);
+      return null;
+    }
+
+    const sendStr = sendUgnotBig > 0n ? `${sendUgnotBig.toString()}ugnot` : "";
+    const payload = {
+      messages: [
+        {
+          type: "/vm.m_call",
+          value: {
+            caller: wallet.address,
+            send: sendStr,
+            pkg_path: net().pkgPath,
+            func: funcName,
+            args: argsArray.map((a) => String(a))
+          }
+        }
+      ],
+      gasFee: net().gasFee,
+      gasWanted: net().gasWanted
+    };
+
+    const res = await window.adena.DoContract(payload);
+    if (!res || res.status === "failure" || (typeof res.code === "number" && res.code !== 0)) {
+      throw new Error(res?.message || res?.data?.message || "Transaction rejected or failed.");
+    }
+    return res;
+  }
+
+  // --- Create Vault Form Logic ---
+  function getSelectedIntervalSeconds() {
+    const sel = $("intervalSelect").value;
+    if (sel === "custom") {
+      return Number($("customIntervalInput").value || 0);
+    }
+    return Number(sel);
+  }
+
+  function updatePreview() {
+    const unit = $("unitSelect").value;
+    const ugnot = parseToUgnot($("amountInput").value, unit);
+    const sec = getSelectedIntervalSeconds();
+    $("intervalSecLabel").textContent = Number.isFinite(sec) && sec > 0 ? `${sec.toLocaleString()}s` : "—";
+
+    if (ugnot === null || ugnot <= 0n) {
+      $("prevTotal").textContent = "—";
+      $("prevBen").textContent = "—";
+      $("prevKeeper").textContent = "—";
+      return;
+    }
+    const fee = (ugnot * 200n) / 10000n;
+    const share = ugnot - fee;
+    $("prevTotal").textContent = `${formatUgnot(ugnot)} (${formatGnot(ugnot)})`;
+    $("prevBen").textContent = `${formatUgnot(share)} (${formatGnot(share)})`;
+    $("prevKeeper").textContent = `${formatUgnot(fee)} (${formatGnot(fee)})`;
+  }
+
+  $("presetGrid").addEventListener("click", (e) => {
+    const btn = e.target.closest(".preset-btn");
+    if (!btn) return;
+    document.querySelectorAll(".preset-btn").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    const key = btn.dataset.preset;
+    const sec = btn.dataset.sec;
+    $("presetDesc").innerHTML = PRESET_COPY[key] || "";
+    $("intervalSelect").value = sec;
+    $("customIntervalInput").style.display = "none";
+    updatePreview();
+  });
+
+  $("intervalSelect").addEventListener("change", () => {
+    const isCustom = $("intervalSelect").value === "custom";
+    $("customIntervalInput").style.display = isCustom ? "block" : "none";
+    updatePreview();
+  });
+  $("customIntervalInput").addEventListener("input", updatePreview);
+  $("amountInput").addEventListener("input", updatePreview);
+  $("unitSelect").addEventListener("change", updatePreview);
+
+  document.querySelectorAll(".chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      $("unitSelect").value = chip.dataset.unit;
+      $("amountInput").value = chip.dataset.amt;
+      updatePreview();
+    });
+  });
+
+  $("fillDemoAddrBtn").addEventListener("click", () => {
+    $("beneficiaryInput").value = DEMO_RECIPIENT;
+  });
+
+  $("createForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errEl = $("formErr");
+    errEl.classList.remove("show");
+
+    const ben = $("beneficiaryInput").value.trim();
+    const unit = $("unitSelect").value;
+    const ugnot = parseToUgnot($("amountInput").value, unit);
+    const intervalSec = Math.floor(getSelectedIntervalSeconds());
+
+    if (!/^g1[a-z0-9]{38}$/.test(ben)) {
+      errEl.textContent = "Enter a valid Gno recipient address (starts with g1, 40 characters).";
+      errEl.classList.add("show");
+      return;
+    }
+    if (wallet.connected && ben === wallet.address) {
+      errEl.textContent = "Recipient cannot be the same as your connected Owner wallet (enforced by realm guard).";
+      errEl.classList.add("show");
+      return;
+    }
+    if (ugnot === null || ugnot <= 0n) {
+      errEl.textContent = unit === "GNOT"
+        ? "Enter a positive GNOT amount (up to 6 decimal places)."
+        : "Enter a positive integer ugnot amount.";
+      errEl.classList.add("show");
+      return;
+    }
+    if (!Number.isFinite(intervalSec) || intervalSec < MIN_INTERVAL || intervalSec > MAX_INTERVAL) {
+      errEl.textContent = "Check-in interval must be between 60 seconds and 31,536,000 seconds (365 days).";
+      errEl.classList.add("show");
+      return;
+    }
+
+    const submitBtn = $("createSubmitBtn");
+    const origText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Waiting for Adena signature...";
+    try {
+      const res = await callRealm("CreateVault", [ben, String(intervalSec)], ugnot);
+      if (res) {
+        const txHash = res?.data?.hash || "";
+        showBanner(
+          "ok",
+          `<strong>Vault created on ${escapeHtml(net().label)}!</strong> Attached <code>${formatUgnot(ugnot)}</code>.${txHash ? ` TX: <code>${escapeHtml(txHash)}</code>` : ""}`
+        );
+        await Promise.all([loadVaults(), refreshBalance(wallet.address)]);
+        updateWalletUI();
+      }
+    } catch (err) {
+      showBanner("err", `<strong>CreateVault failed:</strong> ${escapeHtml(err.message || String(err))}`);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = origText;
+    }
+  });
+
+  // --- Vault Card Actions (CheckIn, Deposit, Cancel, TriggerRelease) ---
+  $("vaultList").addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    const act = btn.dataset.act;
+    const id = btn.dataset.id;
+
+    if (act === "toggle-topup") {
+      const box = $(`topupBox-${id}`);
+      if (box) box.classList.toggle("show");
+      return;
+    }
+
+    busyVaultAction = true;
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.textContent = "Signing in Adena...";
+    try {
+      let res = null;
+      if (act === "checkin") {
+        res = await callRealm("CheckIn", [String(id)], 0n);
+        if (res) showBanner("ok", `<strong>Checked in to Vault #${escapeHtml(id)}!</strong> Deadline reset.`);
+      } else if (act === "cancel") {
+        res = await callRealm("Cancel", [String(id)], 0n);
+        if (res) showBanner("ok", `<strong>Vault #${escapeHtml(id)} cancelled!</strong> Full balance refunded to Owner.`);
+      } else if (act === "release") {
+        res = await callRealm("TriggerRelease", [String(id)], 0n);
+        if (res) showBanner("ok", `<strong>Vault #${escapeHtml(id)} released!</strong> 98% sent to Recipient and 2% keeper reward sent to your wallet.`);
+      } else if (act === "deposit") {
+        const inp = $(`topupInput-${id}`);
+        const amt = parseToUgnot(inp ? inp.value : "", "GNOT");
+        if (amt === null || amt <= 0n) {
+          throw new Error("Enter a valid positive GNOT amount (up to 6 decimals) to deposit.");
+        }
+        res = await callRealm("Deposit", [String(id)], amt);
+        if (res) showBanner("ok", `<strong>Topped up Vault #${escapeHtml(id)}</strong> with <code>${formatUgnot(amt)}</code>!`);
+      }
+      if (res) {
+        await Promise.all([loadVaults(), refreshBalance(wallet.address)]);
+        updateWalletUI();
+      }
+    } catch (err) {
+      showBanner("err", `<strong>Action failed on Vault #${escapeHtml(id)}:</strong> ${escapeHtml(err.message || String(err))}`);
+    } finally {
+      busyVaultAction = false;
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
+  });
+
+  // --- Tabs, Network & Theme ---
+  $("filterTabs").addEventListener("click", (e) => {
+    const tab = e.target.closest(".tab");
+    if (!tab) return;
+    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    tab.classList.add("active");
+    currentFilter = tab.dataset.filter;
+    renderVaults();
+  });
+
+  $("networkSelect").addEventListener("change", async () => {
+    currentNetKey = $("networkSelect").value;
+    const n = net();
+    $("netBadge").innerHTML = `<span class="dot"></span> ${escapeHtml(n.label)}`;
+    $("gnowebLink").href = `${n.gnoweb}${n.shortPath}`;
+    $("realmPathLabel").textContent = n.pkgPath;
+    if (wallet.connected) {
+      await refreshBalance(wallet.address);
+      updateWalletUI();
+    }
+    await loadVaults();
+  });
+
+  $("refreshBtn").addEventListener("click", () => loadVaults());
+  $("connectBtn").addEventListener("click", connectAdena);
+
+  $("themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme");
+    document.documentElement.setAttribute("data-theme", cur === "light" ? "dark" : "light");
+  });
+
+  // Initial boot + periodic background sync
+  updatePreview();
+  loadVaults();
+  setInterval(() => {
+    if (!busyVaultAction) loadVaults();
+  }, 12000);
+})();
+</script>
 </body>
 </html>

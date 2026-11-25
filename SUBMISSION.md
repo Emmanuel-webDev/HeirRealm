@@ -7,7 +7,8 @@ Submissions close: **December 18, 2026, 01:00 UTC**. Judging Dec 18–21, winner
 
 > HeirRealm is inactivity-triggered release for Gno. Lock funds, name who should receive them, and check in regularly — if you go quiet, any keeper can trigger the release: 98% to the recipient, 2% to the keeper. No custodian, no trusted third party. Inheritance is the first use case, but the same primitive covers DAO treasury succession, freelancer escrow when a client disappears, time-locked gifts, and dormant funds. Crypto has no password reset — when a holder dies, loses their keys, or disappears, assets are locked forever. HeirRealm makes "what happens if I go quiet" a first-class feature of the chain.
 >
-> Live on Onyx: https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+> Live on Onyx (GnoWeb): https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+> Adena Web App: https://emmanuel-webdev.github.io/HeirRealm/demo/
 
 ## Submission checklist
 
@@ -45,7 +46,8 @@ Submissions close: **December 18, 2026, 01:00 UTC**. Judging Dec 18–21, winner
 **Final Post (Close):**
 > Inheritance is just the first use case. DAO treasuries, freelancer escrow, time-locked gifts — same vault, same timer.
 >
-> Live on Onyx: https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+> Live on Onyx (GnoWeb): https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+> Adena Web App: https://emmanuel-webdev.github.io/HeirRealm/demo/
 
 ## After submitting — the retention match (roadmap, do not overpromise)
 

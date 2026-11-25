@@ -8,7 +8,8 @@ Inheritance is the first use case: a holder dies or loses their keys and their f
 
 No custodian. No trusted third party. No social recovery committee. **Lock funds + name a recipient + set a check-in window. Check in and nothing happens. Go inactive and the funds move, no custodian needed.**
 
-**Live on Onyx (`onyx-1`):** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+- **Live on Onyx (`gnoweb` — code & on-chain state):** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+- **Adena Web App (zero-CLI Vault & Keeper UI):** https://emmanuel-webdev.github.io/HeirRealm/demo/ *(or open `demo/index.html` via local HTTP server)*
 
 ## Why this wins
 
