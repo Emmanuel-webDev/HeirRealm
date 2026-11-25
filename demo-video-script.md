@@ -1,49 +1,49 @@
 # HeirRealm demo video script (60–90 seconds)
 
-**Format:** screen recording of the local demo (gnodev + terminal + gnoweb), male American voiceover, normal pace, burned-in captions. No face cam needed. Target: 75 seconds.
+**Format:** screen recording of the demo (gnoweb + terminal), male American voiceover, normal pace, burned-in captions. No face cam needed. Target: 75 seconds.
 
 ---
 
-**[0:00–0:08] HOOK — the problem, on screen: a wallet balance that can never move again.**
+**[0:00–0:15] HOOK — the problem + broader primitive, on screen: gnoweb page (`No vaults yet`).**
 
-> "Every year, crypto holders die — or lose their keys — and their assets are locked forever. Billions of dollars, gone, because nobody else can move them."
+> "What happens to your crypto if you just... go quiet? Die, lose your keys, disappear — on most chains, the answer is: it's locked forever. HeirRealm fixes that. And it's not just for inheritance."
 
-**[0:08–0:20] THE IDEA — gnoweb page, empty vault list.**
+**[0:15–0:25] THE PRIMITIVE — how it works in one sentence.**
 
-> "HeirRealm is a dead-man's switch for Gno. You name a beneficiary, fund a vault, and check in regularly. If you stop checking in, anyone can trigger the release — and your GNOT goes to the person you chose. No custodian. No trusted third party."
+> "HeirRealm is inactivity-triggered release for Gno. Lock funds, name who should receive them, and set a check-in window. Check in and nothing happens. Go quiet, and any stranger can trigger the release — earning 2 percent to move 98 percent to your recipient. No custodian needed."
 
-**[0:20–0:35] CREATE — terminal: CreateVault command runs, vault #1 appears on the page.**
+**[0:25–0:38] CREATE — terminal: `CreateVault` command runs, vault #1 appears on gnoweb.**
 
-> "Here's a vault. Alice creates it for Bob: a 60-second check-in window, one thousand ugnot. The realm holds the funds — Alice can't spend them, and neither can anyone else."
+> "Here's a live vault. Alice locks one thousand ugnot for Bob with a 60-second check-in window. The realm holds the funds — nobody can touch them early."
 
-**[0:35–0:48] CHECK IN — terminal: CheckIn runs, deadline moves on the page.**
+**[0:38–0:50] CHECK IN — terminal: `CheckIn` runs, deadline moves forward on gnoweb.**
 
-> "Alice checks in, and the deadline moves forward. As long as she keeps checking in, nothing happens. The funds just sit there, safe."
+> "Alice checks in, and the deadline moves forward. As long as she stays active, nothing happens. The funds stay put."
 
-**[0:48–1:05] EXPIRE + TRIGGER — terminal: wait, then Carol triggers; events show the split.**
+**[0:50–1:06] EXPIRE + TRIGGER — terminal: wait, then Carol triggers; events show the 98/2 split.**
 
-> "Now Alice disappears. The deadline passes — and Carol, a complete stranger, triggers the release. Bob gets 98 percent: one thousand seventy-eight ugnot. Carol, the keeper, gets 2 percent for doing the work: twenty-two ugnot. She can't release early, she can't redirect the funds, and she can't be the owner or the beneficiary. The incentive is the whole mechanism."
+> "Now Alice goes quiet. The deadline passes — and Carol, a complete stranger, calls TriggerRelease. Out of eleven hundred ugnot, Bob gets 98 percent: one thousand seventy-eight ugnot. Carol, the keeper, earns 2 percent for doing the work: twenty-two ugnot. She can't release early, can't redirect the funds, and can't be the owner or the recipient."
 
-**[1:05–1:15] CLOSE — gnoweb page showing "released".**
+**[1:06–1:15] CLOSE — gnoweb page showing `released` + live Onyx URL.**
 
-> "HeirRealm. If you stop checking in, your crypto still reaches the people you chose. Built for the Gnome Tavern Hackathon on Gno."
+> "Inheritance, DAO treasuries, freelancer escrow — same vault, same timer, same keeper. If you go quiet, the funds move. Built for the Gnome Tavern Hackathon, live on Gno Onyx."
 
 ---
 
 ## Shot list (what to record, in order)
 
-1. gnoweb page at `http://localhost:8888/r/dev/heirrealm` — "No vaults yet".
+1. gnoweb page (`/r/.../heirrealm`) — "No vaults yet".
 2. Terminal: `gnokey maketx call ... CreateVault` — show `OK!` and `(1 int)`.
-3. Refresh gnoweb — vault #1, active, 1,000 ugnot, deadline visible.
-4. Terminal: `CheckIn` — show `OK!`; refresh page — deadline moved.
-5. Terminal: `Deposit` 100 ugnot (advances the local chain — see DEMO.md) — balance 1,100.
-6. Terminal: `TriggerRelease` as carol — show `(1078 int64)` `(22 int64)` and the two transfer events.
-7. Refresh gnoweb — vault #1, **released**.
-8. Terminal: `gnokey query bank/balances` for bob — `10000000001078ugnot`.
+3. Refresh gnoweb — Vault #1, `active`, `1000 ugnot`, deadline visible.
+4. Terminal: `CheckIn` — show `OK!`; refresh page — deadline moved forward.
+5. Terminal: `Deposit` `100 ugnot` (advances local devnet block time — see `DEMO.md`; not needed on live Onyx where blocks advance automatically) — balance `1100 ugnot`.
+6. Terminal: `TriggerRelease` as `carol` — show `(1078 int64)` `(22 int64)` and the two transfer events.
+7. Refresh gnoweb — Vault #1, **`released`**.
+8. Terminal: `gnokey query bank/balances` for Bob — `10000000001078ugnot` (plus flash the live Onyx URL `https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm`).
 
 ## Recording notes
 
-- Use the exact commands from DEMO.md — they are verified, including the gas flags (`-gas-wanted 8000000 -gas-fee 8000ugnot`).
-- Start `gnodev` *after* creating the alice/bob/carol keys, so they are funded at startup.
-- The 60-second wait is real time — record it, then cut it to a 2-second "time passing" title card in editing; do not fake the deadline.
+- Use the exact commands from `DEMO.md` — including `-gas-wanted 8000000 -gas-fee 8000ugnot`.
+- If recording on local `gnodev`, start `gnodev` *after* creating the `alice`/`bob`/`carol` keys so they are prefunded at startup.
+- The 60-second wait is real time — record it, then cut it to a 2-second "65 seconds later..." card in editing; do not fake the deadline.
 - Keep the terminal font large (16pt+) so the amounts are readable at 1080p.

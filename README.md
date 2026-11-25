@@ -1,17 +1,35 @@
-# HeirRealm — a dead-man's switch for Gno
+# HeirRealm — inactivity-triggered release for Gno
 
-**If you stop checking in, your GNOT goes to the person you chose — not to a custodian, not into the void.**
+**If you go quiet, your funds move to who should have them — not to a custodian, not into the void.**
 
-Every year, crypto holders die, lose keys, or disappear — and their assets are lost forever, because nobody else can move them. HeirRealm is a Gno realm that fixes that with a check-in timer: name a beneficiary, fund a vault, and check in regularly. Miss the window and *any* stranger (a "keeper") can trigger the release. The keeper earns a small fee for doing the work, but can never touch the funds early, can never redirect them, and can never be the owner or the beneficiary.
+HeirRealm is a Gno realm that holds funds under a check-in timer. Name a recipient, fund a vault, and check in regularly. Miss the window and *any* stranger (a "keeper") can trigger the release. The keeper earns 2% for doing the work, but can never touch the funds early, never redirect them, and never be the owner or the recipient.
 
-No custodian. No trusted third party. No social recovery committee. Just a timer, a beneficiary, and an incentive.
+Inheritance is the first use case: a holder dies or loses their keys and their family still receives the funds. The same primitive also covers DAO treasury succession, freelancer escrow when a client disappears, time-locked gifts, and dormant funds.
+
+No custodian. No trusted third party. No social recovery committee. **Lock funds + name a recipient + set a check-in window. Check in and nothing happens. Go inactive and the funds move, no custodian needed.**
+
+**Live on Onyx (`onyx-1`):** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
 
 ## Why this wins
 
-- **One specific, painful problem.** Lost keys and sudden death lock billions in crypto forever. Everyone knows the problem; almost nobody builds for it.
-- **A new primitive, not a dashboard.** A realm that holds funds under a time condition and pays a stranger to execute it is genuinely new on Gno.
-- **No custodian.** The keeper mechanism is the whole point: the release is maintained by incentives, not by trusting someone.
-- **Working, tested, deployable.** 9 Gno tests pass, and the full flow was run live on a local chain: create → check in → expire → keeper triggers → 98/2 split (see [DEMO.md](DEMO.md)).
+- **One general primitive, five real problems.** Crypto has no password reset — when a holder, maintainer, or client goes quiet, funds sit locked forever.
+- **A new primitive, not a dashboard.** Inactivity-triggered release maintained by an incentivised stranger (2% keeper fee, 98% to recipient) is genuinely new on Gno and importable by other realms.
+- **No custodian.** The keeper mechanism is the whole point: execution is maintained by incentives, not by trusting someone.
+- **Working, tested, deployed live.** 9/9 Gno unit tests pass, verified end-to-end on local `gnodev` (create → check in → expire → keeper triggers → 98/2 split; see [DEMO.md](DEMO.md)), and deployed live on Onyx (`onyx-1`).
+
+## The 5 use cases
+
+All five run on the exact same realm flow (`CreateVault` → `CheckIn` → miss window → keeper calls `TriggerRelease` → 98% to recipient, 2% to keeper):
+
+1. **Inheritance (the original):** A holder names a family member as beneficiary. If they die or lose their keys, the funds go to the family after the check-in window passes — no will, no lawyer, no sharing a seed phrase.
+2. **DAO / project treasury succession:** A maintainer holds a project treasury and names a successor or community wallet as beneficiary. If the maintainer disappears, the treasury moves to the successor instead of dying with them. Other Gno projects can import HeirRealm directly for this.
+3. **Freelancer / bounty escrow (the client disappears):** A client funds a vault naming the freelancer as beneficiary with a 30-day check-in window, checking in while work is ongoing. If the client vanishes, the freelancer does not have to chase them — after expiry a keeper triggers the release and the freelancer gets paid 98%.
+4. **Time-locked gift / trust:** A parent locks funds naming their child as beneficiary and checks in while active. Not a lump sum handed over today, and not a seed phrase on paper — a vault that moves only when the parent goes quiet.
+5. **Dormant / unclaimed funds:** A project, community, or team locks funds naming a community wallet as beneficiary. If the owner goes inactive for a year, the funds return to the community instead of sitting locked forever in a dead wallet.
+
+> **Scope clarity (what this MVP deliberately does NOT do):**
+> - **Not a self-savings vault:** `beneficiary != owner` is enforced on-chain, so an owner cannot release funds back to themselves via expiry (use `Cancel` before expiry for a full owner refund).
+> - **Single beneficiary, one-shot release:** Recurring payments, multi-beneficiary splits, and social/voice recovery are planned future extensions, not in this MVP.
 
 ## How it works
 

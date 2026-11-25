@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HeirRealm — dead-man's switch for Gno · Demo</title>
+<title>HeirRealm — inactivity-triggered release for Gno · Demo</title>
 <style>
   :root { color-scheme: light dark; }
   body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; line-height: 1.6; }
@@ -25,34 +25,44 @@
 </head>
 <body>
 
-<h1>HeirRealm</h1>
-<p class="tagline">A dead-man's switch for Gno. If you stop checking in, your GNOT goes to the person you chose — not to a custodian, not into the void.</p>
-<p><span class="fee">Keeper fee: 2%</span> &nbsp; <span class="fee" style="background:#0969da">Beneficiary: 98%</span></p>
+<h1>HeirRealm — inactivity-triggered release for Gno</h1>
+<p class="tagline">If you go quiet, your funds move to who should have them — not to a custodian, not into the void.</p>
+<p><span class="fee">Keeper fee: 2%</span> &nbsp; <span class="fee" style="background:#0969da">Recipient: 98%</span></p>
+<p><strong>Live on Onyx (<code>onyx-1</code>):</strong> <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm">onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm</a></p>
 
 <div class="flow">
-  <div class="step"><b>1 · Create</b> Alice names Bob as beneficiary, sets a 60-second check-in window, funds the vault with 1,000 ugnot.</div>
+  <div class="step"><b>1 · Lock &amp; Name</b> Alice names Bob as recipient, sets a 60-second check-in window, funds the vault with 1,000 ugnot.</div>
   <div class="step"><b>2 · Check in</b> Alice checks in. The deadline moves forward. Nothing happens — that's the point.</div>
-  <div class="step"><b>3 · Disappear</b> Alice stops. The deadline passes. The funds are now claimable.</div>
+  <div class="step"><b>3 · Go quiet</b> Alice stops checking in. The deadline passes. The funds are now claimable.</div>
   <div class="step"><b>4 · Keeper triggers</b> Carol, a stranger, calls <code>TriggerRelease</code>. Bob gets 98%, Carol earns 2%.</div>
 </div>
 
+<h2>One primitive, five use cases</h2>
+<ol>
+  <li><strong>Inheritance:</strong> Holder dies or loses keys &rarr; family receives the funds after the check-in window, with no lawyer or shared seed phrase.</li>
+  <li><strong>DAO / project treasury succession:</strong> Maintainer disappears &rarr; treasury moves automatically to a successor or community wallet.</li>
+  <li><strong>Freelancer / bounty escrow:</strong> Client funds a vault for a freelancer and checks in while work continues; if the client vanishes, the freelancer still gets paid 98%.</li>
+  <li><strong>Time-locked gift / trust:</strong> Parent locks funds for a child and checks in while active — moves only when the parent goes quiet.</li>
+  <li><strong>Dormant / unclaimed funds:</strong> Team or project funds return to a community wallet after a year of inactivity instead of sitting dead forever.</li>
+</ol>
+
 <h2>The 60-second demo</h2>
-<p>Run locally with <code>gnodev</code>. Full commands and real outputs: <code>DEMO.md</code>. This is what happened on 2026-11-25 on a local chain:</p>
+<p>Run locally with <code>gnodev</code>. Full commands and real outputs: <code>DEMO.md</code>. Verified live on a local chain:</p>
 
 <pre><code>$ gnokey maketx call -func CreateVault -args &lt;bob&gt; -args 60 -send 1000ugnot alice
 OK!  (1 int)                                  # vault #1 created
-# gnoweb: Vault #1 — active — balance 1000 ugnot — deadline 09:28:19Z
+# gnoweb: Vault #1 — active — balance 1000 ugnot — deadline 11:21:59Z
 
 $ gnokey maketx call -func CheckIn -args 1 alice
-OK!                                            # deadline moves to 09:28:32Z
+OK!                                            # deadline moves to 11:22:31Z
 
-... 65 seconds pass, Alice does not check in ...
+... 65 seconds pass, Alice goes quiet ...
 
 $ gnokey maketx call -func TriggerRelease -args 1 carol
 OK!  (1078 int64)  (22 int64)                 # 1,100 × 98% / 2%
-# events: 1078ugnot → bob (beneficiary), 22ugnot → carol (keeper)
+# events: 1078ugnot → bob (recipient), 22ugnot → carol (keeper)
 
-$ curl http://localhost:8888/r/dev/heirrealm
+$ curl http://localhost:8888/r/.../heirrealm
 Vault #1 — released — balance 1100 ugnot</code></pre>
 
 <div class="result">
@@ -63,8 +73,8 @@ Vault #1 — released — balance 1100 ugnot</code></pre>
 <table>
   <tr><th>Action</th><th>Allowed?</th></tr>
   <tr><td>Release before the deadline</td><td>No — the call aborts</td></tr>
-  <tr><td>Redirect funds to themselves</td><td>No — funds go only to the named beneficiary</td></tr>
-  <tr><td>Be the owner or the beneficiary</td><td>No — the realm rejects both</td></tr>
+  <tr><td>Redirect funds to themselves</td><td>No — funds go only to the named recipient</td></tr>
+  <tr><td>Be the owner or the recipient</td><td>No — the realm rejects both (and owner != recipient at creation)</td></tr>
   <tr><td>Release twice</td><td>No — a released vault is closed forever</td></tr>
   <tr><td>Trigger the release after expiry</td><td>Yes — and earn 2% for it</td></tr>
 </table>
@@ -76,7 +86,7 @@ Vault #1 — released — balance 1100 ugnot</code></pre>
   <li><code>gnodev .</code> — then follow <code>DEMO.md</code> step by step.</li>
 </ol>
 
-<p class="note">HeirRealm is a Gnome Tavern Hackathon entry (Gno.land, submissions close Dec 18, 2026). Social / voice recovery is a planned future extension, deliberately not in this MVP. The realm is <code>gno.land/r/dev/heirrealm</code>; on Onyx testnet the path becomes <code>gno.land/r/&lt;your-address&gt;/heirrealm</code> — see <code>scripts/deploy.sh</code>.</p>
+<p class="note">HeirRealm is a Gnome Tavern Hackathon entry (Gno.land, submissions close Dec 18, 2026). Recurring payments, multi-beneficiary splits, and social / voice recovery are planned future extensions, deliberately not in this MVP.</p>
 
 </body>
 </html>
