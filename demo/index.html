@@ -2003,6 +2003,17 @@
     $("beneficiaryInput").value = DEMO_RECIPIENT;
   });
 
+  function resetCreateForm() {
+    $("createForm").reset();
+    $("beneficiaryInput").value = "";
+    $("amountInput").value = "";
+    $("unitSelect").value = "GNOT";
+    $("customIntervalInput").value = "60";
+    $("customIntervalInput").style.display = "none";
+    $("formErr").classList.remove("show");
+    selectPreset("inheritance");
+  }
+
   $("createForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const errEl = $("formErr");
@@ -2044,6 +2055,7 @@
       const res = await callRealm("CreateVault", [ben, String(intervalSec)], ugnot);
       if (res) {
         const txHash = res?.data?.hash || "";
+        resetCreateForm();
         showBanner(
           "ok",
           `<strong>Vault created on ${escapeHtml(net().label)}!</strong> Locked <code>${formatUgnot(ugnot)}</code>.${txHash ? ` TX: <code>${escapeHtml(txHash)}</code>` : ""}`
