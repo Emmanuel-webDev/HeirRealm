@@ -18,6 +18,7 @@
 # This script only deploys. It does not register or submit anything to
 # DoraHacks — that step is yours, in SUBMISSION.md.
 set -eu
+export PATH="$HOME/.gno/bin:$HOME/.local/go/bin:$PATH"
 
 KEY_NAME="${1:-}"
 DEPLOYER_ADDR="${2:-}"
@@ -27,14 +28,15 @@ if [ -z "$KEY_NAME" ] || [ -z "$DEPLOYER_ADDR" ]; then
 fi
 
 # A realm's path is derived from its deployer address namespace.
-PKGPATH="gno.land/r/${DEPLOYER_ADDR}/heirrealm"
+# v2 includes the post-deadline grace period + owner Heartbeat revival.
+PKGPATH="gno.land/r/${DEPLOYER_ADDR}/heirrealm/v2"
 RPC="https://rpc.onyx.testnets.gno.land:443"
 CHAINID="onyx-1"
 
-# Package upload + AST storage uses ~31M gas on Onyx; 40M gives comfortable headroom.
-GAS_FEE="200000ugnot"
-GAS_WANTED="40000000"
-MAX_DEPOSIT="50000000ugnot"
+# Package upload + AST storage uses ~35M gas on Onyx; 45M gives comfortable headroom.
+GAS_FEE="250000ugnot"
+GAS_WANTED="45000000"
+MAX_DEPOSIT="60000000ugnot"
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 REALM_DIR="$SCRIPT_DIR/../r/heirrealm"
@@ -63,5 +65,5 @@ gnokey maketx addpkg \
 
 echo ""
 echo "Deployed. Verify at:"
-echo "  https://onyx.testnets.gno.land/r/${DEPLOYER_ADDR}/heirrealm"
+echo "  https://onyx.testnets.gno.land/r/${DEPLOYER_ADDR}/heirrealm/v2"
 echo "Then add the link to your DoraHacks submission — see SUBMISSION.md."

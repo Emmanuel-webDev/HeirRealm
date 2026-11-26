@@ -43,9 +43,10 @@ func Render(path string) string {
 	out += "\n## How it works\n\n"
 	out += "1. `CreateVault(beneficiary, intervalSeconds)` + `-send` ugnot — you are the owner.\n"
 	out += "2. `CheckIn(vaultID)` before the deadline to reset the timer.\n"
-	out += "3. `Deposit(vaultID)` + `-send` ugnot to top up (owner only, timer unchanged).\n"
-	out += "4. After the deadline, anyone except the owner or beneficiary calls `TriggerRelease(vaultID)` and earns 2%.\n"
-	out += "5. `Cancel(vaultID)` refunds the owner in full — owner only, before the deadline.\n"
+	out += "3. `Heartbeat(vaultID)` during the post-deadline grace period to revive the vault and reset the deadline (owner only).\n"
+	out += "4. `Deposit(vaultID)` + `-send` ugnot to top up (owner only, timer unchanged).\n"
+	out += "5. After deadline + grace period, anyone except the owner or beneficiary calls `TriggerRelease(vaultID)` and earns 2%.\n"
+	out += "6. `Cancel(vaultID)` refunds the owner in full — owner only, before the deadline.\n"
 	return out
 }
 
@@ -57,6 +58,7 @@ func renderVault(v *Vault) string {
 	out += ufmt.Sprintf("- Balance: %d ugnot\n", v.Balance)
 	out += ufmt.Sprintf("- Check-in interval: %d seconds\n", v.Interval)
 	out += ufmt.Sprintf("- Deadline: %s\n", v.Deadline.Format(time.RFC3339))
+	out += ufmt.Sprintf("- Grace period ends: %s (%d seconds)\n", v.GraceEnd().Format(time.RFC3339), v.GracePeriod)
 	out += ufmt.Sprintf("- Keeper fee at release: %d ugnot (2%%)\n", v.KeeperFee())
 	out += ufmt.Sprintf("- Beneficiary share at release: %d ugnot (98%%)\n", v.BeneficiaryShare())
 	if v.Released {

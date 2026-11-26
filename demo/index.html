@@ -121,6 +121,11 @@
     color: var(--butter-ink);
     border-color: transparent;
   }
+  .pill-grace {
+    background: #fff3db;
+    color: #7c4a03;
+    border-color: #f3d08a;
+  }
   .dot-live {
     width: 6px;
     height: 6px;
@@ -643,6 +648,10 @@
     border-color: #e4c95a;
     box-shadow: 0 8px 24px rgba(248, 223, 128, 0.22);
   }
+  .vcard.is-grace {
+    border-color: #f0c674;
+    box-shadow: 0 8px 24px rgba(240, 198, 116, 0.18);
+  }
 
   .vcard-head {
     display: flex;
@@ -693,6 +702,11 @@
     background: var(--butter-soft);
     border-color: #ecd579;
     color: var(--butter-ink);
+  }
+  .timer-strip.strip-grace {
+    background: #fff8eb;
+    border-color: #f3d08a;
+    color: #7c4a03;
   }
   .timer-strip.strip-active {
     background: #f4f7f0;
@@ -902,7 +916,7 @@
       <a href="#workspace">Create Vault</a>
       <a href="#vaultsBoard">Vaults &amp; Bounties</a>
       <a href="#useCases">Use Cases</a>
-      <a id="gnowebNavLink" href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">GnoWeb &#8599;</a>
+      <a id="gnowebNavLink" href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2" target="_blank" rel="noopener">GnoWeb &#8599;</a>
     </div>
 
     <div class="nav-right">
@@ -1071,7 +1085,7 @@
         <div>
           <h2 class="bento-title">Vaults &amp; keeper bounties</h2>
           <div class="bento-sub" id="realmPathLabel" style="font-family:var(--mono);font-size:11.5px;margin-top:3px">
-            gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+            gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2
           </div>
         </div>
         <button class="btn btn-sm" id="refreshBtn" type="button">&#8635; Sync</button>
@@ -1168,8 +1182,8 @@
       <span>Gnome Tavern Hackathon &middot; Non-custodial Gno realm</span>
     </div>
     <div class="footer-links">
-      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm" target="_blank" rel="noopener">Onyx GnoWeb</a>
-      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm$source" target="_blank" rel="noopener">Realm Source</a>
+      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2" target="_blank" rel="noopener">Onyx GnoWeb</a>
+      <a href="https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2$source" target="_blank" rel="noopener">Realm Source</a>
       <a href="https://github.com/Emmanuel-webDev/HeirRealm" target="_blank" rel="noopener">GitHub</a>
       <a href="https://faucet.gno.land" target="_blank" rel="noopener">Gno Faucet</a>
     </div>
@@ -1186,8 +1200,8 @@
       chainId: "onyx-1",
       rpc: "https://rpc.onyx.testnets.gno.land",
       gnoweb: "https://onyx.testnets.gno.land",
-      pkgPath: "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
-      shortPath: "/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
+      pkgPath: "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2",
+      shortPath: "/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2",
       gasFee: 20000,
       gasWanted: 8000000
     },
@@ -1196,8 +1210,8 @@
       chainId: "dev",
       rpc: "http://127.0.0.1:26657",
       gnoweb: "http://localhost:8888",
-      pkgPath: "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
-      shortPath: "/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm",
+      pkgPath: "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2",
+      shortPath: "/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2",
       gasFee: 8000,
       gasWanted: 8000000
     }
@@ -1209,7 +1223,7 @@
     escrow: "<strong>Freelancer / Bounty Escrow:</strong> Client locks payment naming the freelancer as recipient and checks in while work continues. If the client vanishes, the freelancer still gets paid 98%.",
     gift: "<strong>Time-Locked Gift / Trust:</strong> Lock funds for a child or family member while staying active. Moves only when you stop checking in — never a paper seed phrase.",
     dormant: "<strong>Dormant / Unclaimed Funds:</strong> Project or team funds return to a community wallet after 180 days of inactivity rather than sitting locked forever.",
-    demo: "<strong>60-Second Live Demo:</strong> Shortest allowed check-in window (60s). Create a vault, watch the live countdown reach zero, and trigger the 98/2 keeper split."
+    demo: "<strong>60-Second Live Demo:</strong> Shortest check-in window (60s) + 60s post-deadline grace period. Revive during grace with <code>Heartbeat</code>, or let grace expire and trigger the 98/2 keeper split."
   };
 
   const DEMO_RECIPIENT = "g1y5lxm4jqzcu9djpgvxeqypag2hszwcdh422fyw";
@@ -1320,6 +1334,16 @@
     const balMatch = get("Balance").match(/^(\d+)/);
     const intMatch = get("Check-in interval").match(/^(\d+)/);
     const deadlineStr = get("Deadline");
+    const graceRaw = get("Grace period ends");
+    let graceEndStr = "", graceSeconds = 0, hasGrace = false;
+    if (graceRaw) {
+      hasGrace = true;
+      const gm = graceRaw.match(/^(\S+)(?:\s+\((\d+)\s+seconds\))?/);
+      if (gm) {
+        graceEndStr = gm[1];
+        graceSeconds = gm[2] ? Number(gm[2]) : 0;
+      }
+    }
     const relLine = get("Released by keeper");
     let keeper = "", releasedAt = "";
     if (relLine) {
@@ -1330,6 +1354,7 @@
     const keeperFee = (balance * 200n) / 10000n;
     const beneficiaryShare = balance - keeperFee;
     const deadlineMs = deadlineStr ? Date.parse(deadlineStr) : 0;
+    const graceEndMs = graceEndStr ? Date.parse(graceEndStr) : 0;
 
     return {
       id: Number(id),
@@ -1342,6 +1367,10 @@
       interval: intMatch ? Number(intMatch[1]) : 0,
       deadlineStr,
       deadlineMs,
+      hasGrace,
+      graceEndStr,
+      graceEndMs,
+      graceSeconds,
       keeperFee,
       beneficiaryShare,
       keeper,
@@ -1369,13 +1398,31 @@
     const st = entry.statusSummary || "";
     if (st === "released" || st === "cancelled") return false;
     if (st.startsWith("expired")) return true;
-    if (entry.deadlineMs > 0 && Date.now() > entry.deadlineMs) return true;
+    const cached = detailCache.get(entry.id);
+    if (cached) return isVaultExpiredNow(cached);
+    if (st.startsWith("in grace")) {
+      return entry.deadlineMs > 0 && Date.now() > entry.deadlineMs + 60000;
+    }
+    if (entry.deadlineMs > 0) {
+      const graceOffsetMs = currentNetKey === "local" ? 60000 : 0;
+      return Date.now() > entry.deadlineMs + graceOffsetMs;
+    }
     return false;
+  }
+
+  function isVaultInGraceNow(v) {
+    if (!v || v.released || v.cancelled || !v.hasGrace || !v.graceEndMs) return false;
+    const now = Date.now();
+    return (v.statusRaw.startsWith("in grace") || (v.deadlineMs > 0 && now > v.deadlineMs)) && now <= v.graceEndMs;
   }
 
   function isVaultExpiredNow(v) {
     if (!v || v.released || v.cancelled) return false;
-    return v.statusRaw.startsWith("expired") || (v.deadlineMs > 0 && Date.now() > v.deadlineMs);
+    if (v.statusRaw.startsWith("expired")) return true;
+    if (v.hasGrace && v.graceEndMs > 0) {
+      return Date.now() > v.graceEndMs;
+    }
+    return v.deadlineMs > 0 && Date.now() > v.deadlineMs;
   }
 
   // Step 1: Build lightweight index via 1-call Render(""), with automatic VaultCount() fallback
@@ -1598,11 +1645,13 @@
   function renderVaultCardHtml(v) {
     const now = Date.now();
     const myAddr = wallet.address;
+    const inGrace = isVaultInGraceNow(v);
     const expired = isVaultExpiredNow(v);
 
     let pillCls = "pill-sage", stLabel = "Active";
     if (v.released) { pillCls = ""; stLabel = "Released"; }
     else if (v.cancelled) { pillCls = ""; stLabel = "Cancelled"; }
+    else if (inGrace) { pillCls = "pill-grace"; stLabel = "Grace Period · Heartbeat Open"; }
     else if (expired) { pillCls = "pill-butter"; stLabel = "Claimable · 2% Bounty"; }
 
     const isOwner = myAddr && v.owner === myAddr;
@@ -1614,12 +1663,19 @@
       countdownHtml = `<span>Released by keeper <code>${escapeHtml(shortAddr(v.keeper))}</code></span><span style="color:var(--subtle)">${escapeHtml(v.releasedAt)}</span>`;
     } else if (v.cancelled) {
       countdownHtml = `<span>Cancelled &amp; refunded in full to owner</span><span style="color:var(--subtle)">Closed</span>`;
+    } else if (inGrace) {
+      const graceDiff = v.graceEndMs - now;
+      stripCls = "strip-grace";
+      countdownHtml = `<span data-deadline="${v.deadlineMs}" data-grace-end="${v.graceEndMs}" data-phase="grace">Grace period: ${formatDuration(graceDiff)} left for owner Heartbeat</span><span style="font-size:11.5px;opacity:0.8">Grace ends ${escapeHtml(v.graceEndStr)}</span>`;
+    } else if (expired) {
+      const refMs = v.hasGrace && v.graceEndMs > 0 ? v.graceEndMs : v.deadlineMs;
+      const refStr = v.hasGrace && v.graceEndStr ? v.graceEndStr : v.deadlineStr;
+      stripCls = "strip-claimable";
+      countdownHtml = `<span data-deadline="${v.deadlineMs}" data-grace-end="${v.graceEndMs || 0}" data-phase="expired">Expired ${formatDuration(refMs - now)} ago &middot; Ready for keeper</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(refStr)}</span>`;
     } else {
       const diff = v.deadlineMs - now;
-      stripCls = diff <= 0 ? "strip-claimable" : "strip-active";
-      countdownHtml = diff <= 0
-        ? `<span data-deadline="${v.deadlineMs}" data-expired="1">Expired ${formatDuration(diff)} ago &middot; Ready for keeper</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`
-        : `<span data-deadline="${v.deadlineMs}" data-expired="0">${formatDuration(diff)} remaining</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`;
+      stripCls = "strip-active";
+      countdownHtml = `<span data-deadline="${v.deadlineMs}" data-grace-end="${v.graceEndMs || 0}" data-phase="active">${formatDuration(diff)} remaining${v.hasGrace ? ` (+${v.graceSeconds}s grace)` : ""}</span><span style="font-size:11.5px;opacity:0.75">${escapeHtml(v.deadlineStr)}</span>`;
     }
 
     let actionsHtml = "";
@@ -1635,6 +1691,29 @@
             : `<div class="vnote">Any third-party wallet (not Owner or Recipient) can trigger this release and receive 2% atomically.</div>`
           }
         `;
+      } else if (inGrace) {
+        if (isOwner) {
+          actionsHtml = `
+            <button type="button" class="btn btn-dark btn-sm" data-act="heartbeat" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+              Send Heartbeat &middot; Revive Vault
+            </button>
+            <button type="button" class="btn btn-sm" data-act="toggle-topup" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
+              + Top Up
+            </button>
+            <div class="vnote">Check-in deadline passed — send a Heartbeat before grace ends to revive Vault #${v.id} and reset its ${v.interval.toLocaleString()}s window. Keepers cannot release during grace.</div>
+            <div class="topup-drawer" id="topupBox-${v.id}">
+              <input type="text" class="input" id="topupInput-${v.id}" placeholder="GNOT amount (e.g. 0.01)" value="0.01" style="height:38px;flex:1" />
+              <button type="button" class="btn btn-dark btn-sm" data-act="deposit" data-id="${v.id}">Deposit</button>
+            </div>
+          `;
+        } else {
+          actionsHtml = `
+            <button type="button" class="btn btn-sm" disabled>
+              Release Locked (In Grace Period)
+            </button>
+            <div class="vnote">Vault #${v.id} is in its ${v.graceSeconds.toLocaleString()}s post-deadline grace window. Only Owner (<code>${escapeHtml(shortAddr(v.owner))}</code>) can call <code>Heartbeat</code> right now; keeper <code>TriggerRelease</code> unlocks after grace ends.</div>
+          `;
+        }
       } else if (isOwner) {
         actionsHtml = `
           <button type="button" class="btn btn-sage btn-sm" data-act="checkin" data-id="${v.id}" ${busyVaultAction ? "disabled" : ""}>
@@ -1652,14 +1731,14 @@
           </div>
         `;
       } else {
-        actionsHtml = `<div class="vnote">Check-in window: ${v.interval.toLocaleString()}s. Connect as Owner (<code>${escapeHtml(shortAddr(v.owner))}</code>) to check in, top up, or cancel.</div>`;
+        actionsHtml = `<div class="vnote">Check-in window: ${v.interval.toLocaleString()}s${v.hasGrace ? ` + ${v.graceSeconds.toLocaleString()}s grace` : ""}. Connect as Owner (<code>${escapeHtml(shortAddr(v.owner))}</code>) to check in, top up, or cancel.</div>`;
       }
     }
 
     const detailUrl = `${net().gnoweb}${net().shortPath}:${v.id}`;
 
     return `
-      <article class="vcard ${expired ? "is-claimable" : ""}">
+      <article class="vcard ${expired ? "is-claimable" : inGrace ? "is-grace" : ""}">
         <div class="vcard-head">
           <div class="vcard-title">
             <span class="vcard-num">Vault #${v.id}</span>
@@ -1694,24 +1773,37 @@
     `;
   }
 
-  // Live 1s countdown ticker; flips vault into Keeper Bounties automatically when deadline passes
+  // Live 1s countdown ticker; transitions Active -> Grace Period -> Keeper Bounties automatically
   setInterval(() => {
     const now = Date.now();
-    let crossedZero = false;
+    let phaseChanged = false;
     document.querySelectorAll("[data-deadline]").forEach((el) => {
       const dl = Number(el.getAttribute("data-deadline"));
+      const ge = Number(el.getAttribute("data-grace-end") || 0);
+      const prevPhase = el.getAttribute("data-phase") || "active";
       if (!dl) return;
-      const diff = dl - now;
-      const wasExpired = el.getAttribute("data-expired") === "1";
-      if (diff <= 0 && !wasExpired) {
-        crossedZero = true;
-      } else if (diff <= 0) {
-        el.innerHTML = `Expired ${formatDuration(diff)} ago &middot; Ready for keeper`;
+
+      let nextPhase = "active";
+      if (ge > 0) {
+        if (now > ge) nextPhase = "expired";
+        else if (now > dl) nextPhase = "grace";
+      } else if (now > dl) {
+        nextPhase = "expired";
+      }
+
+      if (nextPhase !== prevPhase) {
+        phaseChanged = true;
+      } else if (nextPhase === "grace") {
+        el.textContent = `Grace period: ${formatDuration(ge - now)} left for owner Heartbeat`;
+      } else if (nextPhase === "expired") {
+        const ref = ge > 0 ? ge : dl;
+        el.innerHTML = `Expired ${formatDuration(ref - now)} ago &middot; Ready for keeper`;
       } else {
-        el.textContent = `${formatDuration(diff)} remaining`;
+        const graceNote = ge > dl ? ` (+${Math.round((ge - dl) / 1000)}s grace)` : "";
+        el.textContent = `${formatDuration(dl - now)} remaining${graceNote}`;
       }
     });
-    if (crossedZero) renderActiveView(false);
+    if (phaseChanged) renderActiveView(false);
   }, 1000);
 
   async function refreshBalance(addr) {
@@ -1989,6 +2081,9 @@
       if (act === "checkin") {
         res = await callRealm("CheckIn", [String(id)], 0n);
         if (res) showBanner("ok", `<strong>Checked in to Vault #${escapeHtml(id)}!</strong> Timer reset.`);
+      } else if (act === "heartbeat") {
+        res = await callRealm("Heartbeat", [String(id)], 0n);
+        if (res) showBanner("ok", `<strong>Heartbeat accepted for Vault #${escapeHtml(id)}!</strong> Vault revived from grace period and timer reset.`);
       } else if (act === "cancel") {
         res = await callRealm("Cancel", [String(id)], 0n);
         if (res) showBanner("ok", `<strong>Vault #${escapeHtml(id)} cancelled.</strong> Balance refunded to Owner.`);
@@ -2074,6 +2169,17 @@
 
   $("refreshBtn").addEventListener("click", () => syncIndexAndRender(true));
   $("connectBtn").addEventListener("click", connectAdena);
+
+  // Support ?net=local URL parameter for direct local gnodev UI testing
+  const urlNet = new URLSearchParams(window.location.search).get("net");
+  if (urlNet && NETWORKS[urlNet]) {
+    $("networkSelect").value = urlNet;
+    currentNetKey = urlNet;
+    const n = net();
+    $("netBadge").innerHTML = `<span class="dot-live"></span> ${escapeHtml(n.label)}`;
+    $("gnowebNavLink").href = `${n.gnoweb}${n.shortPath}`;
+    $("realmPathLabel").textContent = n.pkgPath;
+  }
 
   updatePreview();
   syncIndexAndRender(false);

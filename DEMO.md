@@ -1,112 +1,178 @@
-# HeirRealm demo — the 60-second flow
+# HeirRealm demo — Heartbeat revival & post-grace 98/2 release
 
-**"Set beneficiary → fast-forward timer → keeper triggers → funds move."**
+**"Set beneficiary → miss deadline → revive during grace with Heartbeat, OR let grace expire → keeper triggers 98/2 release."**
 
-This is the exact demo that was run live on a local chain on 2026-11-25. Every command below is copy-pasteable, and every expected output is what actually came back. Total runtime: about 3 minutes, most of it waiting for the 60-second timer.
+This is the exact demo run live on a local `gnodev` chain on 2026-11-26 (`gno v1.8.0`). Every command below is copy-pasteable, and every output shown is from the live local run.
+
+- **Check-in interval (demo):** `60` seconds (`MinCheckInIntervalSeconds = 60`)
+- **Grace period (demo):** `60` seconds (`GracePeriodSeconds = 60 // 60s for demo, 7 days in production`, alongside `ProductionGracePeriodSeconds = 7 * 24 * 60 * 60`)
 
 ## Setup (once)
 
 ```sh
 export PATH="$HOME/.gno/bin:$HOME/.local/go/bin:$PATH"
-export GNOROOT=/tmp/gno-src        # only needed if you run tests from the repo clone (see below)
+export GNOROOT="$HOME/.gno/src"
 
 cd r/heirrealm
-gnodev .                           # serves gnoweb at http://localhost:8888/r/dev/heirrealm
+gnodev .   # serves gnoweb at http://127.0.0.1:8888
 ```
 
-In a second terminal, create three throwaway local keys (owner, beneficiary, keeper). The password flag is for local demo use only — never use `-insecure-password-stdin` with a real key:
+In a second terminal, create three throwaway local keys (owner, beneficiary, keeper). The `-insecure-password-stdin` flag is strictly for throwaway local keys — never use it with a real wallet:
 
 ```sh
 printf 'testpass123\ntestpass123\n' | gnokey add -insecure-password-stdin alice
 printf 'testpass123\ntestpass123\n' | gnokey add -insecure-password-stdin bob
 printf 'testpass123\ntestpass123\n' | gnokey add -insecure-password-stdin carol
 gnokey list
-# alice  g18r43mzyzp0p9dwzasj29n2f0er2dqndrcamac3   (owner)
-# bob    g1w7a7rfdxv4atzvrjmvzkxym5s95u59tueg49w0   (beneficiary)
-# carol  g1g9yv2ccu8pe6aznnmp6stszw8hdklnagqr6k48   (keeper)
+# alice  g1crljs0ctzjqreyqzadyqfs0qqv4xpf78rnxfvq   (owner)
+# bob    g1y5lxm4jqzcu9djpgvxeqypag2hszwcdh422fyw   (beneficiary)
+# carol  g1aqs2v5kagldvw6tfksaqdwc0qhg55mhk9c30j6   (keeper)
 ```
 
-> **Important:** create the keys *before* starting `gnodev` — it prefunds every key in the local keybase at startup (10,000,000,000,000 ugnot each). Keys added after startup are not funded. If you already started `gnodev`, restart it.
+> **Important:** create the keys *before* starting `gnodev` — it prefunds every key in the local keybase at startup (`10,000,000,000,000 ugnot` each). Set `PKG` from `r/heirrealm/gnomod.toml` (e.g. `PKG="$(sed -n 's/^module = "\(.*\)"/\1/p' r/heirrealm/gnomod.toml)"`).
 
-## The demo
+> **`gnodev` block-clock note:** On local `gnodev`, block timestamps only advance when valid transactions commit blocks (failing transactions do not commit blocks, and the first block after an idle gap uses the previous commit's timestamp). Sending two tiny `1ugnot` self-transfers from `alice` to `alice` syncs `gnodev`'s BFT block clock to current wall-clock time without altering any vault balance:
+> ```sh
+> sync_clock() {
+>   printf 'testpass123\n' | gnokey maketx send -insecure-password-stdin \
+>     -to "$ALICE_ADDR" -send 1ugnot -gas-fee 8000ugnot -gas-wanted 2000000 \
+>     -chainid dev -remote 127.0.0.1:26657 alice >/dev/null
+> }
+> ```
 
-### 1. Alice creates a vault for Bob — 60-second window, 1,000 ugnot
+---
+
+## Part A — Post-deadline grace period & `Heartbeat` revival
+
+### 1. Alice creates a vault for Bob — 60s check-in window + 60s grace period, 1,000 ugnot
 
 ```sh
+sync_clock && sync_clock
+
 printf 'testpass123\n' | gnokey maketx call -insecure-password-stdin \
-  -pkgpath "gno.land/r/dev/heirrealm" -func "CreateVault" \
-  -args "g1w7a7rfdxv4atzvrjmvzkxym5s95u59tueg49w0" -args 60 \
+  -pkgpath "$PKG" -func "CreateVault" \
+  -args "$BOB_ADDR" -args 60 \
   -send 1000ugnot -gas-fee 8000ugnot -gas-wanted 8000000 \
   -chainid dev -remote 127.0.0.1:26657 alice
 ```
 
-Expected: `OK!`, `GAS USED: ~4,565,484`, return value `(1 int)` — vault #1. The first vault is expensive because the storage tree is initialised on first write.
+Live output (`OK!`, `GAS USED: 5,147,623`):
+- `Status: active`
+- `Balance: 1000 ugnot`
+- `Deadline: 2026-11-26T08:44:56Z`
+- `Grace period ends: 2026-11-26T08:45:56Z (60 seconds)`
 
-Check the page:
+### 2. Wait ~65 seconds — deadline passes, vault enters the 60-second grace period
+
+Once wall-clock time passes `Deadline` (`08:44:56Z`) but is still before `Deadline + GracePeriod` (`08:45:56Z`), sync the devnet clock and inspect `gnoweb`:
 
 ```sh
-curl -s http://localhost:8888/r/dev/heirrealm | grep -o "Vault #[^<]*"
-# Vault #1 — active — balance 1000 ugnot — deadline 2026-11-25T09:28:19Z
+sync_clock && sync_clock
+curl -s "http://localhost:8888${PKG#gno.land}" | grep -o "Vault #[^<]*"
+# Vault #3 — in grace period — awaiting heartbeat — balance 1000 ugnot — deadline 2026-11-26T08:44:56Z
 ```
 
-### 2. Alice checks in — the deadline moves
+### 3. Keeper Carol tries `TriggerRelease` during the grace period — BLOCKED
 
 ```sh
 printf 'testpass123\n' | gnokey maketx call -insecure-password-stdin \
-  -pkgpath "gno.land/r/dev/heirrealm" -func "CheckIn" -args 1 \
-  -gas-fee 8000ugnot -gas-wanted 8000000 \
-  -chainid dev -remote 127.0.0.1:26657 alice
-```
-
-Expected: `OK!` and the deadline moves to 60 seconds after the check-in (in the live run: `09:28:32Z`). Nothing else changes — the balance stays 1,000 ugnot.
-
-### 3. Wait 65 seconds — Alice "disappears"
-
-Do nothing. The deadline passes. (In the live run the deadline was 09:28:32Z and we waited until ~09:29:30.)
-
-### 4. A keeper triggers the release — and gets paid
-
-**gnodev quirk, read this first:** on a local devnet, chain time only advances when blocks are committed, and a *failing* transaction does not commit a block. So the first `TriggerRelease` attempt can fail with `heirrealm: vault has not expired yet` even though wall-clock time has passed — the chain's clock is still behind. Fix: submit one successful transaction to advance the chain (a tiny deposit works), then trigger again. On Onyx testnet blocks are produced continuously, so this step is not needed there.
-
-```sh
-# advance the chain with a successful tx (alice tops up 100 ugnot)
-printf 'testpass123\n' | gnokey maketx call -insecure-password-stdin \
-  -pkgpath "gno.land/r/dev/heirrealm" -func "Deposit" -args 1 \
-  -send 100ugnot -gas-fee 8000ugnot -gas-wanted 8000000 \
-  -chainid dev -remote 127.0.0.1:26657 alice
-# Expected: OK!  (1100 int64)  — balance is now 1,100 ugnot
-
-# carol the keeper triggers the release
-printf 'testpass123\n' | gnokey maketx call -insecure-password-stdin \
-  -pkgpath "gno.land/r/dev/heirrealm" -func "TriggerRelease" -args 1 \
+  -pkgpath "$PKG" -func "TriggerRelease" -args 3 \
   -gas-fee 8000ugnot -gas-wanted 8000000 \
   -chainid dev -remote 127.0.0.1:26657 carol
 ```
 
-Expected: `OK!`, return values `(1078 int64)` and `(22 int64)`, and events showing `22ugnot` to carol and `1078ugnot` to bob. **1,100 × 2% = 22 to the keeper, 1,078 (98%) to the beneficiary.** Gas used ~5.3M.
+Live output — aborts as required:
 
-### 5. Verify — on the page and on the balances
-
-```sh
-curl -s http://localhost:8888/r/dev/heirrealm | grep -o "Vault #[^<]*"
-# Vault #1 — released — balance 1100 ugnot — deadline 2026-11-25T09:28:32Z
-
-gnokey query bank/balances/g1w7a7rfdxv4atzvrjmvzkxym5s95u59tueg49w0 -remote 127.0.0.1:26657
-# data: "10000000001078ugnot"     <- bob: funded 10^13 + 1,078
-gnokey query bank/balances/g1g9yv2ccu8pe6aznnmp6stszw8hdklnagqr6k48 -remote 127.0.0.1:26657
-# data: "9999999972622ugnot"      <- carol: funded 10^13 + 22 fee - 27,400 tx costs
+```text
+panic: heirrealm: vault is in grace period, cannot release before deadline + grace
 ```
 
-## What the demo proves (for the judges)
+### 4. Owner Alice calls `Heartbeat` during the grace period — vault revived & deadline reset
+
+```sh
+printf 'testpass123\n' | gnokey maketx call -insecure-password-stdin \
+  -pkgpath "$PKG" -func "Heartbeat" -args 3 \
+  -gas-fee 8000ugnot -gas-wanted 8000000 \
+  -chainid dev -remote 127.0.0.1:26657 alice
+
+sync_clock
+curl -s "http://localhost:8888${PKG#gno.land}:3" | grep -o "Status:[^<]*\|Deadline:[^<]*\|Grace period ends:[^<]*"
+```
+
+Live output (`OK!`, `GAS USED: 5,505,891`):
+
+```text
+Status: active
+Deadline: 2026-11-26T08:46:27Z
+Grace period ends: 2026-11-26T08:47:27Z (60 seconds)
+```
+
+The vault returns to `active` and its deadline resets to `now + 60s` (`08:46:27Z`), with a fresh 60-second grace window (`08:47:27Z`).
+
+---
+
+## Part B — Post-grace expiry & keeper 98/2 release
+
+### 1. Create a second vault (60s interval + 60s grace, 1,000 ugnot) and wait ~125s (`deadline + grace`)
+
+```sh
+printf 'testpass123\n' | gnokey maketx call -insecure-password-stdin \
+  -pkgpath "$PKG" -func "CreateVault" \
+  -args "$BOB_ADDR" -args 60 \
+  -send 1000ugnot -gas-fee 8000ugnot -gas-wanted 8000000 \
+  -chainid dev -remote 127.0.0.1:26657 alice
+# Initial Deadline: 2026-11-26T08:34:54Z
+# Grace period ends: 2026-11-26T08:35:54Z (60 seconds)
+```
+
+Wait >120 seconds so both the 60-second check-in window and the 60-second grace period expire, then sync the devnet clock:
+
+```sh
+sync_clock && sync_clock
+curl -s "http://localhost:8888${PKG#gno.land}" | grep -o "Vault #[^<]*"
+# Vault #1 — expired — awaiting keeper — balance 1000 ugnot — deadline 2026-11-26T08:34:54Z
+```
+
+### 2. Keeper Carol triggers the release — 98% to Bob, 2% to Carol
+
+```sh
+printf 'testpass123\n' | gnokey maketx call -insecure-password-stdin \
+  -pkgpath "$PKG" -func "TriggerRelease" -args 1 \
+  -gas-fee 8000ugnot -gas-wanted 8000000 \
+  -chainid dev -remote 127.0.0.1:26657 carol
+```
+
+Live output (`OK!`, `GAS USED: 5,285,754`):
+- Return values: `(980 int64)` and `(20 int64)`
+- Events: `20ugnot` (2%) to `carol`, `980ugnot` (98%) to `bob`
+
+### 3. Verify `gnoweb` and on-chain bank balances
+
+```sh
+sync_clock
+curl -s "http://localhost:8888${PKG#gno.land}" | grep -o "Vault #[^<]*"
+# Vault #1 — released — balance 1000 ugnot — deadline 2026-11-26T08:34:54Z
+
+gnokey query "bank/balances/$BOB_ADDR" -remote 127.0.0.1:26657
+# data: "10000000000980ugnot"     <- bob: prefunded 10^13 + 980 ugnot (98%)
+
+gnokey query "bank/balances/$CAROL_ADDR" -remote 127.0.0.1:26657
+# data: "9999999971620ugnot"      <- carol: prefunded 10^13 + 20 ugnot (2% fee) - 28,400 tx cost
+```
+
+---
+
+## What the demo proves
 
 | Claim | Evidence |
 |---|---|
-| Vaults hold real funds | 1,000 ugnot left alice and sat in the realm (event + balance) |
-| Check-in resets the timer | Deadline moved from 09:28:19Z to 09:28:32Z after `CheckIn` |
-| Release is impossible before expiry | `TriggerRelease` before the deadline aborts: `heirrealm: vault has not expired yet` |
-| Keeper cannot be owner/beneficiary | Unit tests `TestKeeperCannotBeOwnerOrBeneficiary` (and the realm rejects both) |
-| The split is exactly 98/2 | 1,100 → 1,078 to bob, 22 to carol, verified in tx events and final balances |
-| No double-release | `TestExpiredReleaseSplits` asserts a second trigger aborts with `already released` |
+| Vaults hold real funds | `1,000 ugnot` moves from `alice` into the realm on `CreateVault` |
+| Grace period protects against missed check-ins | After `Deadline`, status enters `in grace period — awaiting heartbeat`; `TriggerRelease` aborts with `vault is in grace period, cannot release before deadline + grace` |
+| Owner `Heartbeat` revives during grace | `Heartbeat` resets `Deadline` to `now + interval` (`08:44:56Z` → `08:46:27Z`) and restores status to `active` |
+| `Heartbeat` guards are enforced | Fails before `Deadline`, after `Deadline + GracePeriod`, or from any non-owner caller |
+| Post-grace split is strictly 98/2 | After `Deadline + GracePeriod`, `TriggerRelease` pays `980 ugnot` (98%) to `bob` and `20 ugnot` (2%) to keeper `carol` |
+
+---
 
 ## Running the unit tests
 
@@ -115,28 +181,53 @@ cd r/heirrealm
 gno test -v ./...
 ```
 
-Expected output — 9 tests, all PASS (verified 2026-11-25, gno v1.8.0):
+Expected output — 15 tests, all PASS (verified 2026-11-26, `gno v1.8.0`):
 
-```
+```text
 === RUN   TestCreateVault
---- PASS: TestCreateVault (0.00s)
+--- PASS: TestCreateVault (0.01s)
+--- GAS:  4442559
 === RUN   TestCreateVaultGuards
 --- PASS: TestCreateVaultGuards (0.00s)
+--- GAS:  4960832
 === RUN   TestDeposit
---- PASS: TestDeposit (0.00s)
+--- PASS: TestDeposit (0.01s)
+--- GAS:  6963118
 === RUN   TestCheckInResetsTimer
---- PASS: TestCheckInResetsTimer (0.00s)
+--- PASS: TestCheckInResetsTimer (0.01s)
+--- GAS:  6750448
 === RUN   TestEarlyReleaseFails
 --- PASS: TestEarlyReleaseFails (0.00s)
+--- GAS:  6111719
 === RUN   TestExpiredReleaseSplits
---- PASS: TestExpiredReleaseSplits (0.00s)
+--- PASS: TestExpiredReleaseSplits (0.01s)
+--- GAS:  6857050
 === RUN   TestKeeperCannotBeOwnerOrBeneficiary
 --- PASS: TestKeeperCannotBeOwnerOrBeneficiary (0.00s)
+--- GAS:  4669541
 === RUN   TestCancelRefunds
 --- PASS: TestCancelRefunds (0.00s)
+--- GAS:  7705899
 === RUN   TestRender
---- PASS: TestRender (0.00s)
-ok      .   2.11s
+--- PASS: TestRender (0.01s)
+--- GAS:  14487689
+=== RUN   TestTriggerReleaseDuringGraceFails
+--- PASS: TestTriggerReleaseDuringGraceFails (0.00s)
+--- GAS:  6217302
+=== RUN   TestHeartbeatDuringGraceRevivesVault
+--- PASS: TestHeartbeatDuringGraceRevivesVault (0.00s)
+--- GAS:  4501656
+=== RUN   TestHeartbeatBeforeDeadlineFails
+--- PASS: TestHeartbeatBeforeDeadlineFails (0.00s)
+--- GAS:  4307304
+=== RUN   TestHeartbeatAfterGraceEndsFails
+--- PASS: TestHeartbeatAfterGraceEndsFails (0.00s)
+--- GAS:  4443912
+=== RUN   TestHeartbeatNonOwnerFails
+--- PASS: TestHeartbeatNonOwnerFails (0.01s)
+--- GAS:  6307194
+=== RUN   TestTriggerReleaseAfterGraceSplits
+--- PASS: TestTriggerReleaseAfterGraceSplits (0.00s)
+--- GAS:  6337012
+ok      . 	3.01s
 ```
-
-> **If `gno test` fails with `unable to call RPC "https://rpc.gno.land:443"`** — the toolchain is trying to download `gno.land/p/nt/*` from mainnet and your network blocks it. Workaround used for this build: clone `gnolang/gno`, copy the realm to `examples/gno.land/r/dev/heirrealm` inside the clone, and run `GNOROOT=<clone> gno test -v ./...` from there. On a machine with normal internet access the tests run directly from `r/heirrealm`.

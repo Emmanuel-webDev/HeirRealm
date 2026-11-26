@@ -3,6 +3,7 @@ package heirrealm
 import (
 	"chain"
 	"chain/banker"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -17,7 +18,7 @@ func resetTestState() {
 	nextVault = 0
 }
 
-const testPkgPath = "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm"
+const testPkgPath = "gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2"
 
 // makeVault creates a vault owned by owner for beneficiary with the
 // given interval and deposit, funded on the realm so payouts work.
@@ -289,4 +290,124 @@ func TestRender(cur realm, t *testing.T) {
 
 	uassert.Equal(t, "# HeirRealm\n\nUnknown vault.", Render("999"))
 	_ = id
+}
+
+func TestTriggerReleaseDuringGraceFails(cur realm, t *testing.T) {
+	defer resetTestState()
+	owner := testutils.TestAddress("owner10")
+	beneficiary := testutils.TestAddress("beneficiary10")
+	keeper := testutils.TestAddress("keeper10")
+	id := makeVault(cur, t, owner, beneficiary, 60, 1000)
+
+	// Move deadline 30s into the past: past deadline, still inside 60s grace period.
+	v := mustGetVault(id)
+	v.Deadline = time.Now().Add(-30 * time.Second)
+	vaults.Set(strconv.Itoa(id), v)
+
+	uassert.Equal(t, "in grace period — awaiting heartbeat", GetVault(id).Status())
+
+	testing.SetRealm(testing.NewUserRealm(keeper))
+	uassert.AbortsContains(t, cur, "grace period", func() {
+		TriggerRelease(cross(cur), id)
+	})
+	uassert.False(t, GetVault(id).Released)
+}
+
+func TestHeartbeatDuringGraceRevivesVault(cur realm, t *testing.T) {
+	defer resetTestState()
+	owner := testutils.TestAddress("owner11")
+	beneficiary := testutils.TestAddress("beneficiary11")
+	id := makeVault(cur, t, owner, beneficiary, 60, 1000)
+
+	// Move deadline 30s into the past (inside the 60s grace period).
+	v := mustGetVault(id)
+	v.Deadline = time.Now().Add(-30 * time.Second)
+	vaults.Set(strconv.Itoa(id), v)
+	uassert.Equal(t, "in grace period — awaiting heartbeat", GetVault(id).Status())
+
+	testing.SetRealm(testing.NewUserRealm(owner))
+	newDeadline := Heartbeat(cross(cur), id)
+	uassert.True(t, newDeadline.Equal(time.Now().Add(60*time.Second)))
+
+	revived := GetVault(id)
+	uassert.Equal(t, "active", revived.Status())
+	uassert.True(t, revived.Deadline.Equal(time.Now().Add(60*time.Second)))
+	uassert.Equal(t, int64(1000), revived.Balance)
+}
+
+func TestHeartbeatBeforeDeadlineFails(cur realm, t *testing.T) {
+	defer resetTestState()
+	owner := testutils.TestAddress("owner12")
+	beneficiary := testutils.TestAddress("beneficiary12")
+	id := makeVault(cur, t, owner, beneficiary, 60, 1000)
+
+	testing.SetRealm(testing.NewUserRealm(owner))
+	uassert.AbortsContains(t, cur, "deadline has not passed", func() {
+		Heartbeat(cross(cur), id)
+	})
+}
+
+func TestHeartbeatAfterGraceEndsFails(cur realm, t *testing.T) {
+	defer resetTestState()
+	owner := testutils.TestAddress("owner13")
+	beneficiary := testutils.TestAddress("beneficiary13")
+	id := makeVault(cur, t, owner, beneficiary, 60, 1000)
+
+	// Move deadline past deadline + 60s grace period (61s ago -> grace ended 1s ago).
+	v := mustGetVault(id)
+	v.Deadline = time.Now().Add(-time.Duration(GracePeriodSeconds+1) * time.Second)
+	vaults.Set(strconv.Itoa(id), v)
+	uassert.Equal(t, "expired — awaiting keeper", GetVault(id).Status())
+
+	testing.SetRealm(testing.NewUserRealm(owner))
+	uassert.AbortsContains(t, cur, "grace period has ended", func() {
+		Heartbeat(cross(cur), id)
+	})
+}
+
+func TestHeartbeatNonOwnerFails(cur realm, t *testing.T) {
+	defer resetTestState()
+	owner := testutils.TestAddress("owner14")
+	beneficiary := testutils.TestAddress("beneficiary14")
+	stranger := testutils.TestAddress("stranger14")
+	id := makeVault(cur, t, owner, beneficiary, 60, 1000)
+
+	// Place vault inside the 60s grace period.
+	v := mustGetVault(id)
+	v.Deadline = time.Now().Add(-30 * time.Second)
+	vaults.Set(strconv.Itoa(id), v)
+
+	testing.SetRealm(testing.NewUserRealm(stranger))
+	uassert.AbortsContains(t, cur, "only the vault owner", func() {
+		Heartbeat(cross(cur), id)
+	})
+
+	testing.SetRealm(testing.NewUserRealm(beneficiary))
+	uassert.AbortsContains(t, cur, "only the vault owner", func() {
+		Heartbeat(cross(cur), id)
+	})
+}
+
+func TestTriggerReleaseAfterGraceSplits(cur realm, t *testing.T) {
+	defer resetTestState()
+	owner := testutils.TestAddress("owner15")
+	beneficiary := testutils.TestAddress("beneficiary15")
+	keeper := testutils.TestAddress("keeper15")
+	id := makeVault(cur, t, owner, beneficiary, 60, 1000)
+
+	// Move deadline past deadline + 60s grace period.
+	v := mustGetVault(id)
+	v.Deadline = time.Now().Add(-time.Duration(GracePeriodSeconds+5) * time.Second)
+	vaults.Set(strconv.Itoa(id), v)
+	uassert.Equal(t, "expired — awaiting keeper", GetVault(id).Status())
+
+	testing.SetRealm(testing.NewUserRealm(keeper))
+	share, fee := TriggerRelease(cross(cur), id)
+	uassert.Equal(t, int64(980), share)
+	uassert.Equal(t, int64(20), fee)
+
+	banker_ := banker.NewReadonlyBanker()
+	uassert.Equal(t, int64(980), banker_.GetCoin(beneficiary, Denom))
+	uassert.Equal(t, int64(20), banker_.GetCoin(keeper, Denom))
+	uassert.Equal(t, "released", GetVault(id).Status())
 }

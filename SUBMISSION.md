@@ -5,32 +5,32 @@ Submissions close: **December 18, 2026, 01:00 UTC**. Judging Dec 18–21, winner
 
 ## Copy-ready short description (paste into DoraHacks)
 
-> HeirRealm is inactivity-triggered release for Gno. Lock funds, name who should receive them, and check in regularly — if you go quiet, any keeper can trigger the release: 98% to the recipient, 2% to the keeper. No custodian, no trusted third party. Inheritance is the first use case, but the same primitive covers DAO treasury succession, freelancer escrow when a client disappears, time-locked gifts, and dormant funds. Crypto has no password reset — when a holder dies, loses their keys, or disappears, assets are locked forever. HeirRealm makes "what happens if I go quiet" a first-class feature of the chain.
+> HeirRealm is inactivity-triggered release for Gno. Lock funds, name who should receive them, and check in regularly — if you miss a window, a post-deadline grace period lets you revive the vault with an owner-only Heartbeat; stay quiet past the grace period and any keeper can trigger the release: 98% to the recipient, 2% to the keeper. No custodian, no trusted third party. Inheritance is the first use case, but the same primitive covers DAO treasury succession, freelancer escrow when a client disappears, time-locked gifts, and dormant funds. Crypto has no password reset — when a holder dies, loses their keys, or disappears, assets are locked forever. HeirRealm makes "what happens if I go quiet" a first-class feature of the chain.
 >
-> Live on Onyx (GnoWeb): https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+> Live on Onyx (GnoWeb): https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2
 > Adena Web App: https://emmanuel-webdev.github.io/HeirRealm/demo/
 
 ## Submission checklist
 
 | Requirement | Status | Evidence / link |
 |---|---|---|
-| Live working deployment on the Onyx testnet, with link | ✅ Live on `onyx-1` (GPAO `status: "live"`, block `1,400,742`, TX `hXNZA1U7AhfUOLoxv6/qv3iaPmLR63gQawWkUFD4s5o=`) | https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm (`gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm` — create at least one live test vault on Onyx before submitting) |
+| Live working deployment on the Onyx testnet, with link | ✅ Live on `onyx-1` (`heirrealm/v2` at block `1,423,166`, TX `euaCtNf9SfTPYrEpoMsMWBR9rWiBeDwjOSJkyLxi/Ac=`; initial v1 at `/heirrealm`, block `1,400,742`) | https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2 |
 | Public repo | ✅ Done | https://github.com/Emmanuel-webDev/HeirRealm |
-| Genuine Gno component (realm/package) | ✅ Done | `r/heirrealm/` — realm `gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm`, Gno 0.9 |
-| README | ✅ Done | `README.md` — inactivity-triggered release positioning, 5 use cases, keeper fee, guards, local test + live Onyx links |
-| Demo video | ⬜ TODO — record it | Script: `demo-video-script.md` (60–90 seconds, updated "go quiet" hook + 5-use-case close) |
+| Genuine Gno component (realm/package) | ✅ Done | `r/heirrealm/` — realm `gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2`, Gno 0.9 |
+| README | ✅ Done | `README.md` — inactivity-triggered release positioning, 5 use cases, grace-period Heartbeat, keeper fee, guards, local test + live Onyx links |
+| Demo video | ⬜ TODO — record it | Script: `demo-video-script.md` (60–90 seconds, Adena UI + GnoWeb proof) |
 | Short description | ✅ Done | Above — paste into DoraHacks |
 | Project name does NOT use a 'Gno' prefix | ✅ Done | "HeirRealm" — no 'Gno' prefix, implies no official status |
-| No mockups/slides/concepts only | ✅ Done | Live Onyx realm + 9 passing unit tests + verified local-chain 98/2 split (see DEMO.md) |
+| No mockups/slides/concepts only | ✅ Done | Live Onyx realm + single-page Adena dApp + 15 passing unit tests + verified 98/2 split (see DEMO.md) |
 
 ## Judging criteria — where HeirRealm scores
 
 | Criterion (weight) | How HeirRealm meets it |
 |---|---|
-| Technical quality (40%) | Real realm with storage (`avl.Tree`), banker payouts, caller auth (`IsUserCall` + `OriginSend`), time-based logic; 9 unit tests covering every guard; verified end-to-end on local chain (`1,100` → `1,078` / `22`) and deployed live on Onyx (`onyx-1`). |
-| User appeal (20%) | One sentence anyone understands: *"Lock funds + name a recipient + set a check-in window. Check in and nothing happens. Go inactive and the funds move, no custodian needed."* Covers inheritance, DAO succession, freelancer escrow, gifts, and dormant funds. |
-| Creativity (20%) | Inactivity-triggered release maintained by an incentivised stranger (2% keeper fee), not a custodian — a reusable on-chain primitive on Gno. |
-| Docs and demo (20%) | README with 5 concrete use cases and explicit scope bounds, DEMO.md with exact commands and real outputs, static demo page, Onyx deploy script, video script, and this checklist. |
+| Technical quality (40%) | Real realm with storage (`avl.Tree`), banker payouts, caller auth (`IsUserCall` + `OriginSend`), time-based check-in + post-deadline grace period (`Heartbeat`); 15 unit tests covering every guard; verified end-to-end on local chain and deployed live on Onyx (`onyx-1`). |
+| User appeal (20%) | One-click Adena Web App with use-case presets, My Vaults, Keeper Bounties, live grace countdowns, and one sentence anyone understands: *"Lock funds + name a recipient + set a check-in window. Check in and nothing happens. Go inactive and the funds move, no custodian needed."* |
+| Creativity (20%) | Inactivity-triggered release with a trustless post-deadline Heartbeat grace buffer and 2% keeper incentive — a reusable on-chain primitive on Gno. |
+| Docs and demo (20%) | README with 5 concrete use cases and explicit scope bounds, DEMO.md with exact commands and real outputs, Framer-styled Adena dApp, Onyx deploy script, video script, and this checklist. |
 
 ## Socials — revised X/Twitter thread opener
 
@@ -46,7 +46,7 @@ Submissions close: **December 18, 2026, 01:00 UTC**. Judging Dec 18–21, winner
 **Final Post (Close):**
 > Inheritance is just the first use case. DAO treasuries, freelancer escrow, time-locked gifts — same vault, same timer.
 >
-> Live on Onyx (GnoWeb): https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+> Live on Onyx (GnoWeb): https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2
 > Adena Web App: https://emmanuel-webdev.github.io/HeirRealm/demo/
 
 ## After submitting — the retention match (roadmap, do not overpromise)

@@ -1,49 +1,40 @@
-# HeirRealm demo video script (60–90 seconds)
+# HeirRealm demo video script (75–90 seconds)
 
-**Format:** screen recording of the demo (gnoweb + terminal), male American voiceover, normal pace, burned-in captions. No face cam needed. Target: 75 seconds.
-
----
-
-**[0:00–0:15] HOOK — the problem + broader primitive, on screen: gnoweb page (`No vaults yet`).**
-
-> "What happens to your crypto if you just... go quiet? Die, lose your keys, disappear — on most chains, the answer is: it's locked forever. HeirRealm fixes that. And it's not just for inheritance."
-
-**[0:15–0:25] THE PRIMITIVE — how it works in one sentence.**
-
-> "HeirRealm is inactivity-triggered release for Gno. Lock funds, name who should receive them, and set a check-in window. Check in and nothing happens. Go quiet, and any stranger can trigger the release — earning 2 percent to move 98 percent to your recipient. No custodian needed."
-
-**[0:25–0:38] CREATE — terminal: `CreateVault` command runs, vault #1 appears on gnoweb.**
-
-> "Here's a live vault. Alice locks one thousand ugnot for Bob with a 60-second check-in window. The realm holds the funds — nobody can touch them early."
-
-**[0:38–0:50] CHECK IN — terminal: `CheckIn` runs, deadline moves forward on gnoweb.**
-
-> "Alice checks in, and the deadline moves forward. As long as she stays active, nothing happens. The funds stay put."
-
-**[0:50–1:06] EXPIRE + TRIGGER — terminal: wait, then Carol triggers; events show the 98/2 split.**
-
-> "Now Alice goes quiet. The deadline passes — and Carol, a complete stranger, calls TriggerRelease. Out of eleven hundred ugnot, Bob gets 98 percent: one thousand seventy-eight ugnot. Carol, the keeper, earns 2 percent for doing the work: twenty-two ugnot. She can't release early, can't redirect the funds, and can't be the owner or the recipient."
-
-**[1:06–1:15] CLOSE — gnoweb page showing `released` + live Onyx URL.**
-
-> "Inheritance, DAO treasuries, freelancer escrow — same vault, same timer, same keeper. If you go quiet, the funds move. Built for the Gnome Tavern Hackathon, live on Gno Onyx."
+**Format:** screen recording of the **Adena Web App** + **Onyx GnoWeb** tab side-by-side, clear voiceover, burned-in captions. No face cam needed. Target: ~80 seconds.
 
 ---
 
-## Shot list (what to record, in order)
+**[0:00–0:14] HOOK — on screen: HeirRealm Adena Web App hero (`If you go quiet, your funds still reach who should have them`).**
 
-1. gnoweb page (`/r/.../heirrealm`) — "No vaults yet".
-2. Terminal: `gnokey maketx call ... CreateVault` — show `OK!` and `(1 int)`.
-3. Refresh gnoweb — Vault #1, `active`, `1000 ugnot`, deadline visible.
-4. Terminal: `CheckIn` — show `OK!`; refresh page — deadline moved forward.
-5. Terminal: `Deposit` `100 ugnot` (advances local devnet block time — see `DEMO.md`; not needed on live Onyx where blocks advance automatically) — balance `1100 ugnot`.
-6. Terminal: `TriggerRelease` as `carol` — show `(1078 int64)` `(22 int64)` and the two transfer events.
-7. Refresh gnoweb — Vault #1, **`released`**.
-8. Terminal: `gnokey query bank/balances` for Bob — `10000000001078ugnot` (plus flash the live Onyx URL `https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm`).
+> "What happens to your crypto if you just... go quiet? Die, lose your keys, disappear — on most chains, it's locked forever. HeirRealm fixes that on Gno. And it's not just for inheritance."
 
-## Recording notes
+**[0:14–0:26] THE PRIMITIVE — scroll briefly across the 5 use-case presets, then click `60s Live Demo`.**
 
-- Use the exact commands from `DEMO.md` — including `-gas-wanted 8000000 -gas-fee 8000ugnot`.
-- If recording on local `gnodev`, start `gnodev` *after* creating the `alice`/`bob`/`carol` keys so they are prefunded at startup.
-- The 60-second wait is real time — record it, then cut it to a 2-second "65 seconds later..." card in editing; do not fake the deadline.
-- Keep the terminal font large (16pt+) so the amounts are readable at 1080p.
+> "HeirRealm is inactivity-triggered release. Lock GNOT, name a recipient, and pick a check-in window — for family inheritance, DAO treasury succession, or freelancer escrow. Check in and nothing happens. Go quiet past the grace period, and any stranger earns 2 percent to deliver 98 percent to your recipient. No custodian needed."
+
+**[0:26–0:40] CREATE ON ONYX — fill recipient, `0.01 GNOT`, click `Lock Funds & Create Vault`, sign in Adena.**
+
+> "Let's run it live on Gno Onyx. I connect Adena, pick the 60-second demo window with `0.01 GNOT`, and create a vault in one click. Instantly, Vault #1 appears in My Vaults — and right here on Onyx GnoWeb."
+
+**[0:40–0:56] GRACE PERIOD + HEARTBEAT REVIVAL — cut to countdown hitting `0s` → `Grace Period · Heartbeat Open` → click `Send Heartbeat · Revive Vault`.**
+
+> "When the check-in deadline passes, funds don't release immediately — the vault enters a grace period first. Keepers are still locked out, and as the owner I click Send Heartbeat to revive the vault and reset the timer."
+
+**[0:56–1:12] POST-GRACE EXPIRY + KEEPER 98/2 RELEASE — cut to grace ending → switch to Keeper wallet → open `Keeper Bounties` → click `Trigger Release · Earn 200 ugnot (2%)`.**
+
+> "Now suppose I truly go quiet and both the deadline and grace period expire. Any stranger opens Keeper Bounties and clicks Trigger Release — sending `9,800 ugnot` — 98 percent — to the recipient, and earning `200 ugnot` — 2 percent — atomically."
+
+**[1:12–1:22] CLOSE — flip to Onyx GnoWeb showing `Status: released` + GitHub & DoraHacks links.**
+
+> "15 passing Gno unit tests, live on Onyx, zero custodians. HeirRealm — if you go quiet, your funds still move."
+
+---
+
+## Shot list (in order)
+
+1. Open **Adena Web App** (`https://emmanuel-webdev.github.io/HeirRealm/demo/` or `http://localhost:8080/demo/`) set to **`Onyx (onyx-1)`**, plus **Onyx GnoWeb** (`https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2`) in a second tab.
+2. Connect **Owner** wallet in Adena → click **`60s Live Demo`** → enter Recipient `g1...` and `0.01 GNOT` → click **`Lock Funds & Create Vault`** → approve in Adena.
+3. Show the new **`Active`** vault card ticking down (and refresh GnoWeb tab to prove on-chain state).
+4. Let the 60s timer hit `00m 00s` *(trim the wait in editing with a 1.5s `"60 seconds later..."` caption)* → show **`Grace Period · Heartbeat Open`** → click **`Send Heartbeat · Revive Vault`** → approve in Adena → show timer reset back to **`Active`**.
+5. Let both windows expire (`60s + 60s`, trimmed in editing with `"After deadline + grace..."`) → switch Adena to a **Keeper** wallet (not Owner or Recipient) → click **`Keeper Bounties`** → click **`Trigger Release · Earn 200 ugnot (2%)`** → approve in Adena.
+6. Refresh Onyx GnoWeb vault detail page showing **`Status: released`**, **`98%`** recipient share, and **`2%`** keeper fee.

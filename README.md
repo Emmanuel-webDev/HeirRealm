@@ -8,7 +8,7 @@ Inheritance is the first use case: a holder dies or loses their keys and their f
 
 No custodian. No trusted third party. No social recovery committee. **Lock funds + name a recipient + set a check-in window. Check in and nothing happens. Go inactive and the funds move, no custodian needed.**
 
-- **Live on Onyx (`gnoweb` — code & on-chain state):** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+- **Live on Onyx (`gnoweb` — v2 with Heartbeat & Grace Period):** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2 *(initial v1 realm also live at `/heirrealm`)*
 - **Adena Web App (zero-CLI Vault & Keeper UI):** https://emmanuel-webdev.github.io/HeirRealm/demo/ *(or open `demo/index.html` via local HTTP server)*
 
 ## Why this wins
@@ -16,7 +16,7 @@ No custodian. No trusted third party. No social recovery committee. **Lock funds
 - **One general primitive, five real problems.** Crypto has no password reset — when a holder, maintainer, or client goes quiet, funds sit locked forever.
 - **A new primitive, not a dashboard.** Inactivity-triggered release maintained by an incentivised stranger (2% keeper fee, 98% to recipient) is genuinely new on Gno and importable by other realms.
 - **No custodian.** The keeper mechanism is the whole point: execution is maintained by incentives, not by trusting someone.
-- **Working, tested, deployed live.** 9/9 Gno unit tests pass, verified end-to-end on local `gnodev` (create → check in → expire → keeper triggers → 98/2 split; see [DEMO.md](DEMO.md)), and deployed live on Onyx (`onyx-1`).
+- **Working, tested, deployed live.** 15/15 Gno unit tests pass, verified end-to-end on local `gnodev` (create → grace-period `Heartbeat` revival + post-grace keeper `TriggerRelease` 98/2 split; see [DEMO.md](DEMO.md)), and deployed live on Onyx (`onyx-1`).
 
 ## The 5 use cases
 
@@ -36,11 +36,14 @@ All five run on the exact same realm flow (`CreateVault` → `CheckIn` → miss 
 
 ```
 Owner creates vault ──► funds locked in the realm
-        │                (beneficiary + check-in window set at creation)
+        │                (beneficiary + check-in window + grace period)
         ▼
 Owner checks in regularly ──► deadline moves forward, nothing happens
         │
-        ▼  (owner stops checking in, deadline passes)
+        ▼  (deadline passes → vault enters post-deadline grace period)
+Owner calls Heartbeat during grace ──► vault revived & deadline reset (keepers still blocked)
+        │
+        ▼  (owner stays quiet past deadline + grace period)
 Any keeper calls TriggerRelease ──► 98% to beneficiary, 2% to the keeper
 ```
 
@@ -48,12 +51,13 @@ Any keeper calls TriggerRelease ──► 98% to beneficiary, 2% to the keeper
 
 | Field | Meaning |
 |---|---|
-| `Owner` | The address that created the vault. Only the owner can check in, deposit, or cancel. |
+| `Owner` | The address that created the vault. Only the owner can check in, send a heartbeat, deposit, or cancel. |
 | `Beneficiary` | Who receives the funds if the owner stops checking in. Cannot be the owner. |
 | `Balance` | ugnot held in the vault. Topped up with `Deposit`. |
 | `Interval` | The check-in window, in seconds. **Minimum 60 seconds, maximum 365 days.** |
-| `Deadline` | `last check-in + interval`. Check-ins reset it. |
-| `Status` | `active`, `released`, or `cancelled`. |
+| `GracePeriod` | Post-deadline grace window (`GracePeriodSeconds = 60` for demo; `ProductionGracePeriodSeconds = 7 days` in production). |
+| `Deadline` | `last check-in (or heartbeat) + interval`. |
+| `Status` | `active`, `in grace period — awaiting heartbeat`, `expired — awaiting keeper`, `released`, or `cancelled`. |
 
 ### Functions
 
@@ -61,8 +65,9 @@ Any keeper calls TriggerRelease ──► 98% to beneficiary, 2% to the keeper
 |---|---|---|
 | `CreateVault(beneficiary std.Address, intervalSeconds int64) int` | anyone (becomes owner) | Creates a vault, attaches the initial deposit with `-send`. Returns the vault ID. |
 | `Deposit(vaultID int)` | owner only | Adds funds to a vault. Does **not** reset the timer. |
-| `CheckIn(vaultID int) time.Time` | owner only | Resets the deadline to `now + interval`. Only works before the deadline. |
-| `TriggerRelease(vaultID int) (int64, int64)` | any keeper — **not** the owner, **not** the beneficiary | After the deadline, sends 98% to the beneficiary and 2% to the caller. Returns `(beneficiaryAmount, keeperFee)`. |
+| `CheckIn(vaultID int) time.Time` | owner only | Resets the deadline to `now + interval`. Only works **before** the deadline. |
+| `Heartbeat(vaultID int) time.Time` | owner only | Revives a vault strictly **during the grace period** (after `Deadline`, before `Deadline + GracePeriod`) and resets `Deadline` to `now + interval`. |
+| `TriggerRelease(vaultID int) (int64, int64)` | any keeper — **not** the owner, **not** the beneficiary | After `Deadline + GracePeriod`, sends 98% to the beneficiary and 2% to the caller. Returns `(beneficiaryAmount, keeperFee)`. |
 | `Cancel(vaultID int)` | owner only | Before the deadline, refunds the full balance to the owner and closes the vault. |
 | `GetVault(id int) Vault` | anyone (read-only) | Returns one vault. |
 | `VaultCount() int` | anyone (read-only) | How many vaults exist. |
@@ -77,12 +82,13 @@ The keeper receives **2% (200 basis points)** of the vault balance at release; t
 - The beneficiary cannot be the owner.
 - The interval must be between 60 seconds and 365 days.
 - A vault cannot be created with a zero deposit.
-- Nobody can release before the deadline — not the keeper, not the owner, not the beneficiary.
+- Nobody can release before `Deadline + GracePeriod` — not before the deadline, and not during the post-deadline grace period.
+- Only the owner can call `Heartbeat`, and strictly during the grace window (fails before `Deadline` and fails once `Deadline + GracePeriod` has ended).
 - The keeper cannot be the owner or the beneficiary (that would let the owner "release" to themselves early, or the beneficiary skip the wait).
 - No double-release: once released, the vault is closed forever.
-- No check-in after release, and no check-in after the deadline has passed — a missed window cannot be rescued.
+- No check-in after release, and no `CheckIn` after the deadline has passed (during grace, only `Heartbeat` can revive; after grace ends, neither can rescue).
 - No cancel after the deadline: once expired, the funds belong to the beneficiary.
-- Only the owner can check in, deposit, or cancel.
+- Only the owner can check in, send a heartbeat, deposit, or cancel.
 
 ## Project layout
 
@@ -94,12 +100,12 @@ heirrealm-mvp/
 ├── demo-video-script.md       # 60–90 second demo video script
 ├── r/
 │   └── heirrealm/
-│       ├── gnomod.toml        # module gno.land/r/dev/heirrealm, gno 0.9
-│       ├── heirrealm.gno      # the realm: vaults, timer, keeper release
+│       ├── gnomod.toml        # module gno.land/r/<deployer>/heirrealm/v2, gno 0.9
+│       ├── heirrealm.gno      # the realm: vaults, timer, grace heartbeat, keeper release
 │       ├── render.gno         # gnoweb Render page
-│       └── heirrealm_test.gno # 9 tests
+│       └── heirrealm_test.gno # 15 unit tests
 ├── demo/
-│   └── index.html             # static demo walkthrough page (open in a browser)
+│   └── index.html             # single-page Adena dApp (My Vaults, Keeper Bounties, Heartbeat)
 └── scripts/
     └── deploy.sh              # Onyx testnet deploy helper
 ```
@@ -126,7 +132,7 @@ cd r/heirrealm
 gno test -v ./...
 ```
 
-Expected: **9 tests pass** (`TestCreateVault`, `TestCreateVaultGuards`, `TestDeposit`, `TestCheckInResetsTimer`, `TestEarlyReleaseFails`, `TestExpiredReleaseSplits`, `TestKeeperCannotBeOwnerOrBeneficiary`, `TestCancelRefunds`, `TestRender`). `gno lint ./...` is clean.
+Expected: **15 tests pass** (all 9 core vault/keeper tests + 6 grace-period & `Heartbeat` tests). `gno lint ./...` is clean.
 
 > **Note on package resolution.** The realm imports `gno.land/p/nt/avl/v0` (storage), `gno.land/p/nt/ufmt` (formatting), and the test-only `gno.land/p/nt/testutils` / `uassert` packages. `gno test` resolves those from the Gno mainnet RPC by default, so a machine **with internet access** can run the tests directly from this directory. In a sandbox without access to `rpc.gno.land`, copy the realm into a clone of `gnolang/gno` at `examples/gno.land/r/dev/heirrealm` and run `gno test -v ./...` there with `GNOROOT` pointing at the clone — that is how the tests were verified for this build (see DEMO.md).
 
@@ -145,17 +151,18 @@ Two things the demo taught us, recorded in DEMO.md:
 
 ## Onyx testnet deployment (`onyx-1`)
 
-- **Realm path:** `gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm`
+- **Realm path (v2 — Heartbeat & Grace Period):** `gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2`
 - **Deployer:** `g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e`
-- **Block height:** `1,400,742` (`TX HASH: hXNZA1U7AhfUOLoxv6/qv3iaPmLR63gQawWkUFD4s5o=`)
-- **Onyx gnoweb URL (LIVE):** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm
+- **Block height:** `1,423,166` (`TX HASH: euaCtNf9SfTPYrEpoMsMWBR9rWiBeDwjOSJkyLxi/Ac=`, `GAS USED: 39,271,650`)
+- **Onyx gnoweb URL (LIVE):** https://onyx.testnets.gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2
+- **Initial v1 deployment:** `gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm` (block `1,400,742`, `TX HASH: hXNZA1U7AhfUOLoxv6/qv3iaPmLR63gQawWkUFD4s5o=`)
 - **GPAO Status:** `live` (verified via `vm/qpkgmeta_json` and `gnoweb` HTTP `200`)
 - **RPC / Chain ID:** `https://rpc.onyx.testnets.gno.land:443` / `onyx-1`
 
 > **Verify on-chain metadata anytime:**
 > ```sh
 > gnokey query vm/qpkgmeta_json \
->   -data gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm \
+>   -data gno.land/r/g1pzw2mc795ahjumtmkxjyxhz0awklc3apyfpw9e/heirrealm/v2 \
 >   -remote https://rpc.onyx.testnets.gno.land:443
 > ```
 

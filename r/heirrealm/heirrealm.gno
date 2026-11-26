@@ -65,6 +65,15 @@ const MinCheckInIntervalSeconds = 60
 // MaxCheckInIntervalSeconds is the longest check-in window: 365 days.
 const MaxCheckInIntervalSeconds = 365 * 24 * 60 * 60
 
+// ProductionGracePeriodSeconds is the production default grace period
+// (7 days = 604,800s) before an expired vault becomes claimable.
+const ProductionGracePeriodSeconds = 7 * 24 * 60 * 60
+
+// GracePeriodSeconds is the grace window after Deadline during which
+// TriggerRelease is still blocked and only the owner's Heartbeat can
+// revive the vault: 60s for demo, 7 days in production.
+const GracePeriodSeconds = 60 // 60s for demo, 7 days in production
+
 var (
 	vaults    avl.Tree // vault ID (string) -> *Vault
 	nextVault int
@@ -77,12 +86,23 @@ type Vault struct {
 	Beneficiary address
 	Balance     int64 // ugnot held by this vault
 	Interval    int64 // check-in window, in seconds
+	GracePeriod int64 // post-deadline grace window, in seconds
 	Deadline    time.Time
 	CreatedAt   time.Time
 	Released    bool
 	Cancelled   bool
 	Keeper      address   // set on release; zero address until then
 	ReleasedAt  time.Time // zero until released
+}
+
+// GraceEnd returns the end of the vault's grace period (Deadline + GracePeriod).
+// Keepers can only call TriggerRelease strictly after GraceEnd.
+func (v Vault) GraceEnd() time.Time {
+	gp := v.GracePeriod
+	if gp <= 0 {
+		gp = GracePeriodSeconds
+	}
+	return v.Deadline.Add(time.Duration(gp) * time.Second)
 }
 
 // Status returns a human-readable state for the vault.
@@ -93,8 +113,12 @@ func (v Vault) Status() string {
 	if v.Cancelled {
 		return "cancelled"
 	}
-	if time.Now().After(v.Deadline) {
+	now := time.Now()
+	if now.After(v.GraceEnd()) {
 		return "expired — awaiting keeper"
+	}
+	if now.After(v.Deadline) {
+		return "in grace period — awaiting heartbeat"
 	}
 	return "active"
 }
@@ -147,6 +171,7 @@ func CreateVault(cur realm, beneficiary address, intervalSeconds int64) int {
 		Beneficiary: beneficiary,
 		Balance:     amount,
 		Interval:    intervalSeconds,
+		GracePeriod: GracePeriodSeconds,
 		Deadline:    now.Add(time.Duration(intervalSeconds) * time.Second),
 		CreatedAt:   now,
 	}
@@ -198,13 +223,34 @@ func CheckIn(cur realm, id int) time.Time {
 	return v.Deadline
 }
 
-// TriggerRelease releases an expired vault. Anyone may call it — that
-// is the keeper's job — but the keeper may not be the owner or the
-// beneficiary, and the deadline must have passed. The keeper earns
-// 2% of the balance; the beneficiary receives the remaining 98%.
-// The keeper is paid for doing the work, never a custodian: they
-// cannot release early, change the beneficiary, or touch the funds
-// before expiry.
+// Heartbeat revives a vault during its post-deadline grace period and
+// resets its deadline to now + the check-in interval, identically to
+// CheckIn. Only the vault owner may call Heartbeat, and only strictly
+// during the grace window (after Deadline, before Deadline + GracePeriod).
+func Heartbeat(cur realm, id int) time.Time {
+	v := mustGetVault(id)
+	caller := cur.Previous().Address()
+	if caller != v.Owner {
+		panic("heirrealm: only the vault owner may send a heartbeat")
+	}
+	requireActive(v)
+	now := time.Now()
+	if !now.After(v.Deadline) {
+		panic("heirrealm: deadline has not passed yet, use CheckIn before the deadline")
+	}
+	if !now.Before(v.GraceEnd()) {
+		panic("heirrealm: grace period has ended, heartbeat is too late")
+	}
+	v.Deadline = now.Add(time.Duration(v.Interval) * time.Second)
+	vaults.Set(strconv.Itoa(v.ID), v)
+	return v.Deadline
+}
+
+// TriggerRelease releases an expired vault once both its check-in
+// deadline AND its post-deadline grace period have passed. Anyone may
+// call it — that is the keeper's job — but the keeper may not be the
+// owner or the beneficiary. The keeper earns 2% of the balance; the
+// beneficiary receives the remaining 98%.
 func TriggerRelease(cur realm, id int) (beneficiaryShare int64, keeperFee int64) {
 	v := mustGetVault(id)
 	keeper := cur.Previous().Address()
@@ -218,8 +264,12 @@ func TriggerRelease(cur realm, id int) (beneficiaryShare int64, keeperFee int64)
 		panic("heirrealm: the beneficiary cannot be the keeper")
 	}
 	requireActive(v)
-	if !time.Now().After(v.Deadline) {
+	now := time.Now()
+	if !now.After(v.Deadline) {
 		panic("heirrealm: vault has not expired yet")
+	}
+	if !now.After(v.GraceEnd()) {
+		panic("heirrealm: vault is in grace period, cannot release before deadline + grace")
 	}
 	keeperFee = v.KeeperFee()
 	beneficiaryShare = v.BeneficiaryShare()
