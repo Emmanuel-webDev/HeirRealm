@@ -901,6 +901,85 @@
     flex-wrap: wrap;
   }
   .footer-links a:hover { color: var(--ink); }
+
+  /* Responsive Media Queries (Tablet & Mobile) */
+  body { overflow-x: hidden; }
+  .bento-sub, .notice, .vmeta-item code { overflow-wrap: anywhere; }
+
+  @media (max-width: 680px) {
+    .shell { padding: 0 16px; }
+    .nav {
+      height: auto;
+      min-height: 60px;
+      padding: 10px 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .brand-wordmark { font-size: 23px; }
+    .nav-right {
+      width: 100%;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .net-select {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 185px;
+      font-size: 12.5px;
+      padding: 0 10px;
+    }
+    .wallet-chip {
+      max-width: 100%;
+      padding: 0 10px;
+      gap: 7px;
+      font-size: 12px;
+    }
+    .wallet-bal { padding-left: 7px; }
+
+    .hero { padding: 36px 0 28px; }
+    .hero-sub { font-size: 14.5px; margin-bottom: 18px; }
+    .hero-metrics { gap: 6px; }
+
+    .bento { padding: 18px; border-radius: 18px; }
+    .bento-head { flex-wrap: wrap; gap: 8px; }
+    .bento-title { font-size: 25px; }
+
+    .board-controls {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+    .filter-bar { width: 100%; }
+    .ftab {
+      flex: 1 1 auto;
+      justify-content: center;
+      padding: 8px 10px;
+      font-size: 12.5px;
+    }
+    .lookup-form { width: 100%; }
+    .lookup-input { flex: 1; width: auto; min-width: 0; }
+
+    .vcard { padding: 16px; }
+    .timer-strip { font-size: 12px; padding: 9px 11px; }
+    .vactions .btn { flex: 1 1 auto; }
+    .topup-drawer.show { flex-direction: column; }
+
+    .usecases-section { padding: 48px 0 24px; }
+    .footer {
+      margin-top: 36px;
+      padding: 24px 0 36px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .footer-links { gap: 14px; }
+  }
+
+  @media (max-width: 420px) {
+    .preset-grid { grid-template-columns: 1fr; }
+    .amount-group { grid-template-columns: 1fr 86px; }
+    .receipt-row { flex-wrap: wrap; gap: 4px; }
+  }
 </style>
 </head>
 <body>
